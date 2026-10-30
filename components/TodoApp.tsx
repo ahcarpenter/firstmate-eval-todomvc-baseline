@@ -11,6 +11,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [newTitle, setNewTitle] = useState("");
+  const [newDueDate, setNewDueDate] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -28,8 +29,11 @@ export default function TodoApp({ filter }: { filter: Filter }) {
     if (event.key !== ENTER_KEY) return;
     const title = newTitle.trim();
     if (!title) return;
-    setTodos([...todos, { id: nextId(todos), title, completed: false }]);
+    const todo: Todo = { id: nextId(todos), title, completed: false };
+    if (newDueDate) todo.dueDate = newDueDate;
+    setTodos([...todos, todo]);
     setNewTitle("");
+    setNewDueDate("");
   }
 
   function toggle(id: number) {
@@ -67,14 +71,25 @@ export default function TodoApp({ filter }: { filter: Filter }) {
       <section className="todoapp">
         <header className="header">
           <h1>todos</h1>
-          <input
-            className="new-todo"
-            placeholder="What needs to be done?"
-            autoFocus
-            value={newTitle}
-            onChange={(event) => setNewTitle(event.target.value)}
-            onKeyDown={addTodo}
-          />
+          <div className="new-todo-row">
+            <input
+              className="new-todo"
+              placeholder="What needs to be done?"
+              autoFocus
+              value={newTitle}
+              onChange={(event) => setNewTitle(event.target.value)}
+              onKeyDown={addTodo}
+            />
+            <label className="new-due-date">
+              Due date
+              <input
+                type="date"
+                value={newDueDate}
+                onChange={(event) => setNewDueDate(event.target.value)}
+                onKeyDown={addTodo}
+              />
+            </label>
+          </div>
         </header>
         {todos.length > 0 && (
           <section className="main">

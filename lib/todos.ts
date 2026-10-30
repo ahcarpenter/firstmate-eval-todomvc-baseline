@@ -2,6 +2,8 @@ export type Todo = {
   id: number;
   title: string;
   completed: boolean;
+  // Calendar date as YYYY-MM-DD, the value of an <input type="date">.
+  dueDate?: string;
 };
 
 export type Filter = "all" | "active" | "completed";
@@ -16,6 +18,15 @@ export function nextId(todos: Todo[]): number {
 
 export function pluralize(count: number, word: string): string {
   return count === 1 ? word : `${word}s`;
+}
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+// Formats a YYYY-MM-DD date as "Due Nov 3". Parses the parts directly so the
+// day never shifts with the viewer's time zone.
+export function formatDueDate(dueDate: string): string {
+  const [, month, day] = dueDate.split("-").map(Number);
+  return `Due ${MONTHS[month - 1]} ${day}`;
 }
 
 export function filterTodos(todos: Todo[], filter: Filter): Todo[] {
