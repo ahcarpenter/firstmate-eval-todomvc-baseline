@@ -104,3 +104,43 @@ test("edits a todo's due date, and overdue follows it", async ({ page }) => {
   await expect(item.locator("label")).toHaveText("Pay the rent");
   await expect(item.locator(".todo-due")).toHaveCount(0);
 });
+
+test("sorts by due date within each filter and keeps the choice across reloads", async ({ page }) => {
+  await page.goto("/");
+  const input = page.getByPlaceholder("What needs to be done?");
+  const due = page.getByLabel("Due date");
+  for (const [title, date] of [
+    ["Buy milk", ""],
+    ["Book trip", "2026-11-03"],
+    ["Pay rent", "2026-10-28"],
+    ["Call mom", ""],
+    ["File taxes", "2026-11-03"],
+  ]) {
+    if (date) await due.fill(date);
+    await input.fill(title);
+    await input.press("Enter");
+  }
+  const labels = page.locator(".todo-list li label");
+  const sort = page.getByLabel("Sort by date");
+  await expect(sort).not.toBeChecked();
+  await expect(labels).toHaveText(["Buy milk", "Book trip", "Pay rent", "Call mom", "File taxes"]);
+
+  await sort.check();
+  await expect(labels).toHaveText(["Pay rent", "Book trip", "File taxes", "Buy milk", "Call mom"]);
+
+  await page.reload();
+  await expect(sort).toBeChecked();
+  await expect(labels).toHaveText(["Pay rent", "Book trip", "File taxes", "Buy milk", "Call mom"]);
+
+  await page.locator(".todo-list li").filter({ hasText: "Pay rent" }).locator(".toggle").click();
+  await page.getByRole("link", { name: "Active" }).click();
+  await expect(page).toHaveURL(/\/active$/);
+  await expect(sort).toBeChecked();
+  await expect(labels).toHaveText(["Book trip", "File taxes", "Buy milk", "Call mom"]);
+
+  await sort.uncheck();
+  await expect(labels).toHaveText(["Buy milk", "Book trip", "Call mom", "File taxes"]);
+  await page.reload();
+  await expect(sort).not.toBeChecked();
+  await expect(labels).toHaveText(["Buy milk", "Book trip", "Call mom", "File taxes"]);
+});

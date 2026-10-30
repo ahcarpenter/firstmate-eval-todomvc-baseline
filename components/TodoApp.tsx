@@ -3,7 +3,21 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import TodoItem from "@/components/TodoItem";
-import { editTodo, filterTodos, isOverdue, loadTodos, nextId, pluralize, saveTodos, todayKey, type Filter, type Todo } from "@/lib/todos";
+import {
+  editTodo,
+  filterTodos,
+  isOverdue,
+  loadSortByDue,
+  loadTodos,
+  nextId,
+  pluralize,
+  saveSortByDue,
+  saveTodos,
+  sortByDue,
+  todayKey,
+  type Filter,
+  type Todo,
+} from "@/lib/todos";
 
 const ENTER_KEY = "Enter";
 
@@ -13,17 +27,23 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   const [newTitle, setNewTitle] = useState("");
   const [newDue, setNewDue] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [sortDue, setSortDue] = useState(false);
 
   useEffect(() => {
     // Read storage after mount so the server render and the first client render match.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setTodos(loadTodos());
+    setSortDue(loadSortByDue());
     setLoaded(true);
   }, []);
 
   useEffect(() => {
     if (loaded) saveTodos(todos);
   }, [todos, loaded]);
+
+  useEffect(() => {
+    if (loaded) saveSortByDue(sortDue);
+  }, [sortDue, loaded]);
 
   function addTodo(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key !== ENTER_KEY) return;
@@ -63,7 +83,8 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   }
 
   const today = todayKey();
-  const shown = filterTodos(todos, filter, today);
+  const filtered = filterTodos(todos, filter, today);
+  const shown = sortDue ? sortByDue(filtered) : filtered;
   const activeCount = todos.filter((todo) => !todo.completed).length;
   const completedCount = todos.length - activeCount;
   const overdueCount = todos.filter((todo) => isOverdue(todo, today)).length;
@@ -148,6 +169,10 @@ export default function TodoApp({ filter }: { filter: Filter }) {
                 Clear completed
               </button>
             )}
+            <label className="sort-by-due">
+              <input type="checkbox" checked={sortDue} onChange={(event) => setSortDue(event.target.checked)} />
+              Sort by date
+            </label>
           </footer>
         )}
       </section>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { editTodo, filterTodos, formatDue, isOverdue, nextId, pluralize, todayKey, type Todo } from "./todos";
+import { editTodo, filterTodos, formatDue, isOverdue, nextId, pluralize, sortByDue, todayKey, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -98,5 +98,25 @@ describe("editTodo", () => {
 
   it("adds a date to a todo without one", () => {
     expect(editTodo({ id: 2, title: "Buy milk", completed: false }, "Buy milk", "2026-10-29").due).toBe("2026-10-29");
+  });
+});
+
+describe("sortByDue", () => {
+  const mixed: Todo[] = [
+    { id: 1, title: "No date", completed: false },
+    { id: 2, title: "Late", completed: false, due: "2026-11-10" },
+    { id: 3, title: "Early", completed: true, due: "2026-10-01" },
+    { id: 4, title: "Same as late", completed: false, due: "2026-11-10" },
+    { id: 5, title: "Bad date", completed: false, due: "2026-13-01" },
+    { id: 6, title: "Also no date", completed: false },
+  ];
+
+  it("puts the earliest due date first and undated todos last, keeping ties in order", () => {
+    expect(sortByDue(mixed).map((todo) => todo.id)).toEqual([3, 2, 4, 1, 5, 6]);
+  });
+
+  it("leaves the input untouched", () => {
+    sortByDue(mixed);
+    expect(mixed.map((todo) => todo.id)).toEqual([1, 2, 3, 4, 5, 6]);
   });
 });

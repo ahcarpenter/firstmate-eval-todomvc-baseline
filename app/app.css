@@ -71,3 +71,31 @@
   border: none;
   background: none;
 }
+
+.footer {
+  height: auto;
+}
+
+.footer .sort-by-due {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  /* Sit above the stacked-paper .footer:before, which covers the footer's bottom 50px. */
+  position: relative;
+  clear: both;
+  padding-top: 10px;
+  color: #777;
+  font-size: 14px;
+}
+
+/* Narrow screens drop the filters to the footer's bottom; keep them above the sort row. */
+@media (max-width: 430px) {
+  .filters {
+    bottom: 40px;
+  }
+
+  .footer .sort-by-due {
+    padding-top: 40px;
+  }
+}
