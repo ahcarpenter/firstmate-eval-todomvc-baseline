@@ -58,6 +58,11 @@ export function isOverdue(todo: Todo, today: string): boolean {
   return todo.due < today;
 }
 
+// Reschedule every overdue todo to `today`, leaving the rest untouched.
+export function moveOverdueToToday(todos: Todo[], today: string): Todo[] {
+  return todos.map((todo) => (isOverdue(todo, today) ? { ...todo, due: today } : todo));
+}
+
 // Apply an edit; an empty `due` removes the date.
 export function editTodo(todo: Todo, title: string, due: string): Todo {
   const edited: Todo = { ...todo, title };

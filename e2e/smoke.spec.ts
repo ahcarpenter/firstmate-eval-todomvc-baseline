@@ -190,3 +190,32 @@ test("searches titles within the current filter and keeps counting every active 
   await expect(labels).toHaveText(["Buy milk", "Walk the dog", "Call mom"]);
   await expect(page.locator(".todo-count")).toHaveText("3 items left");
 });
+
+test("moves every overdue todo to today from the footer", async ({ page }) => {
+  await page.clock.setFixedTime(new Date(2026, 9, 30, 12));
+  await page.goto("/");
+  const input = page.getByPlaceholder("What needs to be done?");
+  const due = page.getByLabel("Due date");
+  for (const [title, date] of [
+    ["Pay rent", "2026-10-28"],
+    ["File taxes", "2026-10-29"],
+    ["Book trip", "2026-11-03"],
+  ]) {
+    await due.fill(date);
+    await input.fill(title);
+    await input.press("Enter");
+  }
+  const move = page.getByRole("button", { name: "Move overdue to today" });
+  await expect(page.locator(".overdue-count")).toHaveText("2 overdue");
+
+  await move.click();
+  const items = page.locator(".todo-list li");
+  await expect(items.locator(".todo-due")).toHaveText(["Due today", "Due today", "Due Nov 3"]);
+  await expect(items.locator(".todo-overdue")).toHaveCount(0);
+  await expect(page.locator(".overdue-count")).toHaveCount(0);
+  await expect(move).toHaveCount(0);
+
+  await page.reload();
+  await expect(items.locator(".todo-due")).toHaveText(["Due today", "Due today", "Due Nov 3"]);
+  await expect(move).toHaveCount(0);
+});

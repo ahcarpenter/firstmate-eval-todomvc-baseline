@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { editTodo, filterTodos, formatDue, isOverdue, nextId, pluralize, searchTodos, sortByDue, todayKey, tomorrowKey, type Todo } from "./todos";
+import { editTodo, filterTodos, formatDue, isOverdue, moveOverdueToToday, nextId, pluralize, searchTodos, sortByDue, todayKey, tomorrowKey, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -111,6 +111,13 @@ describe("overdue", () => {
 
   it("filters to overdue todos", () => {
     expect(filterTodos(dated, "overdue", today).map((todo) => todo.id)).toEqual([1, 6]);
+  });
+
+  it("moves only overdue todos to today", () => {
+    const moved = moveOverdueToToday(dated, today);
+    expect(moved.map((todo) => todo.due)).toEqual([today, today, "2026-11-03", "2026-10-01", undefined, today]);
+    expect(moved.filter((todo) => isOverdue(todo, today))).toEqual([]);
+    expect(moved[2]).toBe(dated[2]);
   });
 });
 

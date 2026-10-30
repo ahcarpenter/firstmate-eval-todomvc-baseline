@@ -10,6 +10,7 @@ import {
   loadSearch,
   loadSortByDue,
   loadTodos,
+  moveOverdueToToday,
   nextId,
   pluralize,
   saveSearch,
@@ -89,6 +90,10 @@ export default function TodoApp({ filter }: { filter: Filter }) {
 
   function clearCompleted() {
     setTodos(todos.filter((todo) => !todo.completed));
+  }
+
+  function moveOverdue() {
+    setTodos(moveOverdueToToday(todos, todayKey()));
   }
 
   const today = todayKey();
@@ -181,6 +186,11 @@ export default function TodoApp({ filter }: { filter: Filter }) {
             {completedCount > 0 && (
               <button className="clear-completed" onClick={clearCompleted}>
                 Clear completed
+              </button>
+            )}
+            {overdueCount > 0 && (
+              <button className="move-overdue" onClick={moveOverdue}>
+                Move overdue to today
               </button>
             )}
             <label className="sort-by-due">

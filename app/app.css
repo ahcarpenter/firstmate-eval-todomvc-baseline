@@ -107,6 +107,22 @@
   font-size: 14px;
 }
 
+.footer .move-overdue {
+  display: block;
+  margin: 0 auto;
+  /* Same as .sort-by-due: clear the floats and sit above the stacked-paper .footer:before. */
+  position: relative;
+  clear: both;
+  padding-top: 10px;
+  color: #b83f45;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.footer .move-overdue:hover {
+  text-decoration: underline;
+}
+
 /* Narrow screens drop the filters to the footer's bottom; keep them above the sort row. */
 @media (max-width: 430px) {
   .filters {
