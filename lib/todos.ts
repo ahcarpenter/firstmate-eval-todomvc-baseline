@@ -56,10 +56,19 @@ export function sortByDue(todos: Todo[]): Todo[] {
   });
 }
 
-/** Formats a `YYYY-MM-DD` due date as "Due Nov 3", or returns null when it is missing or malformed. */
-export function formatDue(due: string | undefined): string | null {
+/**
+ * Formats a `YYYY-MM-DD` due date as "Due today", "Due tomorrow", or "Due Nov 3", relative to `today`
+ * (the local calendar day as `YYYY-MM-DD`), or returns null when it is missing or malformed.
+ */
+export function formatDue(due: string | undefined, today: string): string | null {
   const date = parseDue(due);
   if (!date) return null;
+  const todayDate = parseDue(today);
+  if (todayDate) {
+    const days = Math.round((date.getTime() - todayDate.getTime()) / 86_400_000);
+    if (days === 0) return "Due today";
+    if (days === 1) return "Due tomorrow";
+  }
   return `Due ${date.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })}`;
 }
 

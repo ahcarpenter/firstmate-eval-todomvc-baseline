@@ -111,18 +111,34 @@ describe("localDay", () => {
 });
 
 describe("formatDue", () => {
+  const today = "2026-10-29";
+
   it("formats a due date as a short month and day", () => {
-    expect(formatDue("2026-11-03")).toBe("Due Nov 3");
-    expect(formatDue("2027-01-31")).toBe("Due Jan 31");
+    expect(formatDue("2026-11-03", today)).toBe("Due Nov 3");
+    expect(formatDue("2027-01-31", today)).toBe("Due Jan 31");
+    expect(formatDue("2026-10-28", today)).toBe("Due Oct 28");
+    expect(formatDue("2026-10-31", today)).toBe("Due Oct 31");
+  });
+
+  it("says today or tomorrow for todos due soon", () => {
+    expect(formatDue("2026-10-29", today)).toBe("Due today");
+    expect(formatDue("2026-10-30", today)).toBe("Due tomorrow");
+  });
+
+  it("finds tomorrow across month and year ends", () => {
+    expect(formatDue("2026-11-01", "2026-10-31")).toBe("Due tomorrow");
+    expect(formatDue("2027-01-01", "2026-12-31")).toBe("Due tomorrow");
+    expect(formatDue("2028-02-29", "2028-02-28")).toBe("Due tomorrow");
+    expect(formatDue("2027-03-01", "2027-02-28")).toBe("Due tomorrow");
   });
 
   it("returns null when there is no due date", () => {
-    expect(formatDue(undefined)).toBeNull();
-    expect(formatDue("")).toBeNull();
+    expect(formatDue(undefined, today)).toBeNull();
+    expect(formatDue("", today)).toBeNull();
   });
 
   it("returns null for malformed or impossible dates", () => {
-    expect(formatDue("Nov 3")).toBeNull();
-    expect(formatDue("2026-02-31")).toBeNull();
+    expect(formatDue("Nov 3", today)).toBeNull();
+    expect(formatDue("2026-02-31", today)).toBeNull();
   });
 });

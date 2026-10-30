@@ -149,3 +149,19 @@ test("sorts by due date within every filter, and keeps the choice across reloads
   await expect(sort).not.toBeChecked();
   await expect.poll(titlesOf).toEqual(["Buy milk", "Pay rent"]);
 });
+
+test("labels todos due today or tomorrow by the local calendar", async ({ page }) => {
+  // Late in the local evening, when the UTC day may already be the next one.
+  await page.clock.setFixedTime(new Date(2026, 9, 29, 23, 30));
+  await page.goto("/");
+  const input = page.getByPlaceholder("What needs to be done?");
+  const due = page.getByLabel("Due date");
+  for (const [title, date] of [["Pay rent", "2026-10-29"], ["Buy milk", "2026-10-30"], ["File taxes", "2026-10-31"]]) {
+    await input.fill(title);
+    await due.fill(date);
+    await input.press("Enter");
+  }
+  const dues = page.locator(".todo-list li .due");
+  await expect(dues).toHaveText(["Due today", "Due tomorrow", "Due Oct 31"]);
+  await expect(page.locator(".todo-list li .overdue")).toHaveCount(0);
+});
