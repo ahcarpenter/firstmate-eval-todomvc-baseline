@@ -9,6 +9,7 @@ import {
   loadSortByDate,
   loadTodos,
   localDate,
+  moveOverdueToToday,
   nextId,
   pluralize,
   saveSortByDate,
@@ -88,6 +89,10 @@ export default function TodoApp({ filter }: { filter: Filter }) {
 
   function clearCompleted() {
     setTodos(todos.filter((todo) => !todo.completed));
+  }
+
+  function moveOverdue() {
+    setTodos(moveOverdueToToday(todos, today));
   }
 
   const today = localDate(new Date());
@@ -186,6 +191,11 @@ export default function TodoApp({ filter }: { filter: Filter }) {
               <input type="checkbox" checked={sortByDate} onChange={(event) => setSortByDate(event.target.checked)} />
               Sort by date
             </label>
+            {overdueCount > 0 && (
+              <button className="move-overdue" onClick={moveOverdue}>
+                Move overdue to today
+              </button>
+            )}
             {completedCount > 0 && (
               <button className="clear-completed" onClick={clearCompleted}>
                 Clear completed

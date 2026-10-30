@@ -85,6 +85,38 @@ test("marks overdue todos, filters them, and counts them in the footer", async (
   await expect(items).toHaveText(["Pay rentDue Oct 28Overdue"]);
 });
 
+test("moves every overdue todo to today from the footer", async ({ page }) => {
+  await page.clock.setFixedTime(new Date(2026, 9, 29, 12, 0));
+  await page.goto("/");
+  const dueDate = page.getByLabel("Due date");
+  const input = page.getByPlaceholder("What needs to be done?");
+  const moveOverdue = page.getByRole("button", { name: "Move overdue to today" });
+  for (const [title, due] of [
+    ["Pay rent", "2026-10-28"],
+    ["File taxes", "2026-10-01"],
+    ["Call mom", "2026-11-03"],
+    ["Buy milk", ""],
+  ]) {
+    if (due) await dueDate.fill(due);
+    await input.fill(title);
+    await input.press("Enter");
+    if (title === "Pay rent") await expect(moveOverdue).toBeVisible();
+  }
+  const items = page.locator(".todo-list li");
+  // A completed overdue todo is not overdue, so it keeps its date.
+  await items.nth(1).locator(".toggle").check();
+  await expect(page.locator(".overdue-count")).toHaveText("1 overdue");
+
+  await moveOverdue.click();
+  await expect(items).toHaveText(["Pay rentDue today", "File taxesDue Oct 1", "Call momDue Nov 3", "Buy milk"]);
+  await expect(page.locator(".overdue-count")).toHaveText("0 overdue");
+  await expect(moveOverdue).toHaveCount(0);
+
+  await page.reload();
+  await expect(items.first()).toHaveText("Pay rentDue today");
+  await expect(moveOverdue).toHaveCount(0);
+});
+
 test("changes a todo's due date while editing", async ({ page }) => {
   await page.clock.setFixedTime(new Date(2026, 9, 29, 12, 0));
   await page.goto("/");

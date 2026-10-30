@@ -77,6 +77,18 @@
   color: #b83f45;
 }
 
+/* Positioned like the filters so it paints above the footer's :before shadow
+   overlay and still receives clicks. */
+.footer .move-overdue {
+  position: relative;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.footer .move-overdue:hover {
+  text-decoration: underline;
+}
+
 /* While editing, the title and "Change date" fields share one row in the
    place the stock stylesheet gives the lone edit field. */
 .todo-list li.editing .edit-row {

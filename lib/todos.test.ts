@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, formatDueDate, isOverdue, localDate, nextId, pluralize, searchTodos, sortByDueDate, type Todo } from "./todos";
+import { filterTodos, formatDueDate, isOverdue, localDate, moveOverdueToToday, nextId, pluralize, searchTodos, sortByDueDate, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -50,6 +50,33 @@ describe("filterTodos", () => {
       { id: 4, title: "No date", completed: false },
     ];
     expect(filterTodos(dated, "overdue", TODAY).map((todo) => todo.id)).toEqual([1]);
+  });
+});
+
+describe("moveOverdueToToday", () => {
+  const dated: Todo[] = [
+    { id: 1, title: "Late", completed: false, dueDate: "2026-10-28" },
+    { id: 2, title: "Today", completed: false, dueDate: TODAY },
+    { id: 3, title: "Done late", completed: true, dueDate: "2026-10-01" },
+    { id: 4, title: "No date", completed: false },
+    { id: 5, title: "Later", completed: false, dueDate: "2026-11-03" },
+    { id: 6, title: "Very late", completed: false, dueDate: "2025-12-31" },
+  ];
+
+  it("moves only overdue todos to today", () => {
+    expect(moveOverdueToToday(dated, TODAY).map((todo) => todo.dueDate)).toEqual([
+      TODAY,
+      TODAY,
+      "2026-10-01",
+      undefined,
+      "2026-11-03",
+      TODAY,
+    ]);
+  });
+
+  it("leaves nothing overdue and does not change the input", () => {
+    expect(moveOverdueToToday(dated, TODAY).filter((todo) => isOverdue(todo, TODAY))).toEqual([]);
+    expect(dated[0].dueDate).toBe("2026-10-28");
   });
 });
 
