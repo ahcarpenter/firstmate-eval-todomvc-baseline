@@ -1,65 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import TodoItem from "@/components/TodoItem";
-import { filterTodos, loadTodos, nextId, pluralize, saveTodos, type Filter, type Todo } from "@/lib/todos";
+import { countActive } from "@/lib/todoState";
+import { filterTodos, pluralize, type Filter } from "@/lib/todos";
+import { useTodos } from "@/lib/useTodos";
 
 const ENTER_KEY = "Enter";
 
 export default function TodoApp({ filter }: { filter: Filter }) {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const { todos, dispatch } = useTodos();
   const [newTitle, setNewTitle] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  useEffect(() => {
-    // Read storage after mount so the server render and the first client render match.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTodos(loadTodos());
-    setLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    if (loaded) saveTodos(todos);
-  }, [todos, loaded]);
-
   function addTodo(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key !== ENTER_KEY) return;
-    const title = newTitle.trim();
-    if (!title) return;
-    setTodos([...todos, { id: nextId(todos), title, completed: false }]);
+    if (!newTitle.trim()) return;
+    dispatch({ type: "add", title: newTitle });
     setNewTitle("");
   }
 
-  function toggle(id: number) {
-    setTodos(todos.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo)));
-  }
-
-  function toggleAll(completed: boolean) {
-    setTodos(todos.map((todo) => ({ ...todo, completed })));
-  }
-
-  function destroy(id: number) {
-    setTodos(todos.filter((todo) => todo.id !== id));
-  }
-
   function save(id: number, title: string) {
-    const trimmed = title.trim();
-    if (!trimmed) {
-      destroy(id);
-    } else {
-      setTodos(todos.map((todo) => (todo.id === id ? { ...todo, title: trimmed } : todo)));
-    }
+    dispatch({ type: "save", id, title });
     setEditingId(null);
   }
 
-  function clearCompleted() {
-    setTodos(todos.filter((todo) => !todo.completed));
-  }
-
   const shown = filterTodos(todos, filter);
-  const activeCount = todos.filter((todo) => !todo.completed).length;
+  const activeCount = countActive(todos);
   const completedCount = todos.length - activeCount;
 
   return (
@@ -83,7 +51,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
               className="toggle-all"
               type="checkbox"
               checked={activeCount === 0}
-              onChange={(event) => toggleAll(event.target.checked)}
+              onChange={(event) => dispatch({ type: "toggleAll", completed: event.target.checked })}
             />
             <label htmlFor="toggle-all">Mark all as complete</label>
             <ul className="todo-list">
@@ -92,8 +60,8 @@ export default function TodoApp({ filter }: { filter: Filter }) {
                   key={todo.id}
                   todo={todo}
                   editing={editingId === todo.id}
-                  onToggle={() => toggle(todo.id)}
-                  onDestroy={() => destroy(todo.id)}
+                  onToggle={() => dispatch({ type: "toggle", id: todo.id })}
+                  onDestroy={() => dispatch({ type: "destroy", id: todo.id })}
                   onEdit={() => setEditingId(todo.id)}
                   onSave={(title) => save(todo.id, title)}
                   onCancel={() => setEditingId(null)}
@@ -125,7 +93,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
               </li>
             </ul>
             {completedCount > 0 && (
-              <button className="clear-completed" onClick={clearCompleted}>
+              <button className="clear-completed" onClick={() => dispatch({ type: "clearCompleted" })}>
                 Clear completed
               </button>
             )}
