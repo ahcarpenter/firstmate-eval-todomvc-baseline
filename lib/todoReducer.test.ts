@@ -38,6 +38,12 @@ describe("todoReducer", () => {
     ]);
   });
 
+  it("pins and unpins one todo", () => {
+    const pinned = todoReducer(todos, { type: "togglePin", id: 2 });
+    expect(pinned.map((todo) => Boolean(todo.pinned))).toEqual([false, true]);
+    expect(todoReducer(pinned, { type: "togglePin", id: 2 })[1].pinned).toBe(false);
+  });
+
   it("destroys a todo", () => {
     expect(todoReducer(todos, { type: "destroy", id: 1 }).map((todo) => todo.id)).toEqual([2]);
   });
@@ -62,6 +68,7 @@ describe("todoReducer", () => {
     const before = structuredClone(todos);
     todoReducer(todos, { type: "toggle", id: 1 });
     todoReducer(todos, { type: "save", id: 1, title: "x" });
+    todoReducer(todos, { type: "togglePin", id: 1 });
     expect(todos).toEqual(before);
   });
 });

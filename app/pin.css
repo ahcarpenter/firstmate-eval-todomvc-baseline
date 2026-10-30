@@ -1,0 +1,28 @@
+.todo-list li label {
+  padding-right: 120px;
+}
+
+.todo-list li .pin {
+  position: absolute;
+  top: 0;
+  right: 55px;
+  bottom: 0;
+  height: 28px;
+  margin: auto 0;
+  padding: 0 8px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 14px;
+  color: #777;
+  cursor: pointer;
+}
+
+.todo-list li .pin:hover,
+.todo-list li .pin:focus {
+  border-color: #b83f45;
+  color: #b83f45;
+}
+
+.todo-list li.pinned .pin {
+  color: #b83f45;
+}

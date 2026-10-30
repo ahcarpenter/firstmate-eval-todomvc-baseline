@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, nextId, pluralize, type Todo } from "./todos";
+import { filterTodos, nextId, pinnedFirst, pluralize, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -13,6 +13,10 @@ describe("nextId", () => {
 
   it("follows the existing todos", () => {
     expect(nextId(todos)).toBe(3);
+  });
+
+  it("does not reuse an id after a deletion", () => {
+    expect(nextId([todos[1]])).toBe(3);
   });
 });
 
@@ -38,5 +42,23 @@ describe("filterTodos", () => {
 
   it("returns only completed todos", () => {
     expect(filterTodos(todos, "completed").map((todo) => todo.id)).toEqual([2]);
+  });
+});
+
+describe("pinnedFirst", () => {
+  const list: Todo[] = [
+    { id: 1, title: "a", completed: false },
+    { id: 2, title: "b", completed: false, pinned: true },
+    { id: 3, title: "c", completed: true },
+    { id: 4, title: "d", completed: true, pinned: true },
+  ];
+
+  it("puts pinned todos first and keeps each group in order", () => {
+    expect(pinnedFirst(list).map((todo) => todo.id)).toEqual([2, 4, 1, 3]);
+  });
+
+  it("does not mutate the input list", () => {
+    pinnedFirst(list);
+    expect(list.map((todo) => todo.id)).toEqual([1, 2, 3, 4]);
   });
 });
