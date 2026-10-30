@@ -44,3 +44,30 @@
   border: 1px solid #999;
   box-sizing: border-box;
 }
+
+.lists li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lists li button {
+  padding: 2px 6px;
+  font-size: 12px;
+  color: #4d4d4d;
+  background: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.lists li button:disabled {
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+.lists .rename-list {
+  padding: 2px 6px;
+  font-size: 15px;
+  border: 1px solid #999;
+}

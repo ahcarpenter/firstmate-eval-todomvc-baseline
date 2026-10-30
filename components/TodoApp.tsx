@@ -4,10 +4,11 @@ import Link from "next/link";
 import { notFound, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import TodoItem from "@/components/TodoItem";
-import { addList, loadLists, replaceTodos, saveLists, type TodoList } from "@/lib/lists";
+import { addList, loadLists, removeList, renameList, replaceTodos, saveLists, type TodoList } from "@/lib/lists";
 import { filterTodos, nextId, pluralize, type Filter, type Todo } from "@/lib/todos";
 
 const ENTER_KEY = "Enter";
+const ESCAPE_KEY = "Escape";
 
 // Without a listId the app shows the first list, which is what `/` opens.
 export default function TodoApp({ listId, filter }: { listId?: string; filter: Filter }) {
@@ -17,6 +18,11 @@ export default function TodoApp({ listId, filter }: { listId?: string; filter: F
   const [newTitle, setNewTitle] = useState("");
   const [newListName, setNewListName] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [renamingListId, setRenamingListId] = useState<string | null>(null);
+  const [renameText, setRenameText] = useState("");
+  // The open list's id after it is deleted, so the page shows the first list instead of
+  // not found until the switch to that list lands.
+  const [deletedOpenListId, setDeletedOpenListId] = useState<string | null>(null);
 
   useEffect(() => {
     // Read storage after mount so the server render and the first client render match.
@@ -27,7 +33,9 @@ export default function TodoApp({ listId, filter }: { listId?: string; filter: F
 
   if (!loaded) return null;
 
-  const list = (listId === undefined ? lists[0] : lists.find((candidate) => candidate.id === listId)) ?? notFound();
+  const list =
+    (listId === undefined ? lists[0] : lists.find((candidate) => candidate.id === listId)) ??
+    (listId === deletedOpenListId ? lists[0] : notFound());
   const todos = list.todos;
   const listPath = `/lists/${list.id}`;
 
@@ -49,6 +57,34 @@ export default function TodoApp({ listId, filter }: { listId?: string; filter: F
     updateLists(next);
     setNewListName("");
     router.push(`/lists/${created.id}`);
+  }
+
+  function startRenaming(target: TodoList) {
+    setRenameText(target.name);
+    setRenamingListId(target.id);
+  }
+
+  function handleRenameKeyDown(event: React.KeyboardEvent<HTMLInputElement>, id: string) {
+    if (event.key === ESCAPE_KEY) {
+      setRenamingListId(null);
+      return;
+    }
+    if (event.key !== ENTER_KEY) return;
+    const name = renameText.trim();
+    if (!name) return;
+    updateLists(renameList(lists, id, name));
+    setRenamingListId(null);
+  }
+
+  function deleteList(target: TodoList) {
+    if (lists.length <= 1) return;
+    if (!window.confirm(`Delete the list "${target.name}" and its todos?`)) return;
+    const next = removeList(lists, target.id);
+    updateLists(next);
+    if (target.id === list.id && listId !== undefined) {
+      setDeletedOpenListId(target.id);
+      router.replace(`/lists/${next[0].id}`);
+    }
   }
 
   function addTodo(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -163,13 +199,36 @@ export default function TodoApp({ listId, filter }: { listId?: string; filter: F
         <ul>
           {lists.map((candidate) => (
             <li key={candidate.id}>
-              <Link
-                href={`/lists/${candidate.id}`}
-                className={candidate.id === list.id ? "selected" : undefined}
-                aria-current={candidate.id === list.id ? "page" : undefined}
+              {renamingListId === candidate.id ? (
+                <input
+                  className="rename-list"
+                  aria-label={`New name for ${candidate.name}`}
+                  autoFocus
+                  value={renameText}
+                  onChange={(event) => setRenameText(event.target.value)}
+                  onKeyDown={(event) => handleRenameKeyDown(event, candidate.id)}
+                  onBlur={() => setRenamingListId(null)}
+                />
+              ) : (
+                <Link
+                  href={`/lists/${candidate.id}`}
+                  className={candidate.id === list.id ? "selected" : undefined}
+                  aria-current={candidate.id === list.id ? "page" : undefined}
+                >
+                  {candidate.name}
+                </Link>
+              )}
+              <button className="rename-list-button" onClick={() => startRenaming(candidate)}>
+                Rename {candidate.name}
+              </button>
+              <button
+                className="delete-list-button"
+                onClick={() => deleteList(candidate)}
+                disabled={lists.length <= 1}
+                title={lists.length <= 1 ? "The last list cannot be deleted" : undefined}
               >
-                {candidate.name}
-              </Link>
+                Delete {candidate.name}
+              </button>
             </li>
           ))}
         </ul>

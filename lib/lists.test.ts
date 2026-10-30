@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addList, nextListId, parseLists, replaceTodos, type TodoList } from "./lists";
+import { addList, nextListId, parseLists, removeList, renameList, replaceTodos, type TodoList } from "./lists";
 
 const lists: TodoList[] = [
   { id: "1", name: "Todos", todos: [{ id: 1, title: "Buy milk", completed: false }] },
@@ -37,6 +37,25 @@ describe("addList", () => {
     const [next, created] = addList(lists, "Home");
     expect(created).toEqual({ id: "4", name: "Home", todos: [] });
     expect(next).toEqual([...lists, created]);
+  });
+});
+
+describe("renameList", () => {
+  it("renames only the named list and keeps its todos", () => {
+    const next = renameList(lists, "1", "Errands");
+    expect(next[0]).toEqual({ ...lists[0], name: "Errands" });
+    expect(next[1]).toBe(lists[1]);
+  });
+});
+
+describe("removeList", () => {
+  it("removes the named list and its todos", () => {
+    expect(removeList(lists, "1")).toEqual([lists[1]]);
+  });
+
+  it("keeps the last list", () => {
+    const only = [lists[0]];
+    expect(removeList(only, "1")).toBe(only);
   });
 });
 

@@ -20,6 +20,16 @@ export function addList(lists: TodoList[], name: string): [TodoList[], TodoList]
   return [[...lists, list], list];
 }
 
+export function renameList(lists: TodoList[], id: string, name: string): TodoList[] {
+  return lists.map((list) => (list.id === id ? { ...list, name } : list));
+}
+
+// The last list stays, so there is always one to open at `/`.
+export function removeList(lists: TodoList[], id: string): TodoList[] {
+  if (lists.length <= 1) return lists;
+  return lists.filter((list) => list.id !== id);
+}
+
 export function replaceTodos(lists: TodoList[], id: string, todos: Todo[]): TodoList[] {
   return lists.map((list) => (list.id === id ? { ...list, todos } : list));
 }
