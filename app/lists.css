@@ -1,0 +1,46 @@
+.lists {
+  margin: 40px 0 0;
+  padding: 16px;
+  background: #fff;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
+  font-size: 15px;
+}
+
+.lists ul {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lists a {
+  color: inherit;
+  text-decoration: none;
+  padding: 3px 7px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+}
+
+.lists a:hover {
+  border-color: #db7676;
+}
+
+.lists a.selected {
+  border-color: #ce4646;
+}
+
+.lists label {
+  display: block;
+  margin-bottom: 4px;
+  color: #4d4d4d;
+}
+
+.lists .new-list {
+  width: 100%;
+  padding: 6px;
+  font-size: 15px;
+  border: 1px solid #999;
+  box-sizing: border-box;
+}

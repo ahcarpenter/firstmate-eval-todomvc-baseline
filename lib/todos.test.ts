@@ -14,6 +14,10 @@ describe("nextId", () => {
   it("follows the existing todos", () => {
     expect(nextId(todos)).toBe(3);
   });
+
+  it("does not reuse an id after a todo is removed", () => {
+    expect(nextId([todos[1]])).toBe(3);
+  });
 });
 
 describe("pluralize", () => {

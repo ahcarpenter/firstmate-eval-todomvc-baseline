@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "todomvc-app-css/index.css";
+import "./lists.css";
 
 export const metadata: Metadata = {
   title: "Next.js • TodoMVC",

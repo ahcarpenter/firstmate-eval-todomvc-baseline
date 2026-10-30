@@ -1,28 +1,55 @@
 "use client";
 
 import Link from "next/link";
+import { notFound, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import TodoItem from "@/components/TodoItem";
-import { filterTodos, loadTodos, nextId, pluralize, saveTodos, type Filter, type Todo } from "@/lib/todos";
+import { addList, loadLists, replaceTodos, saveLists, type TodoList } from "@/lib/lists";
+import { filterTodos, nextId, pluralize, type Filter, type Todo } from "@/lib/todos";
 
 const ENTER_KEY = "Enter";
 
-export default function TodoApp({ filter }: { filter: Filter }) {
-  const [todos, setTodos] = useState<Todo[]>([]);
+// Without a listId the app shows the first list, which is what `/` opens.
+export default function TodoApp({ listId, filter }: { listId?: string; filter: Filter }) {
+  const router = useRouter();
+  const [lists, setLists] = useState<TodoList[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [newTitle, setNewTitle] = useState("");
+  const [newListName, setNewListName] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
 
   useEffect(() => {
     // Read storage after mount so the server render and the first client render match.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTodos(loadTodos());
+    setLists(loadLists());
     setLoaded(true);
   }, []);
 
-  useEffect(() => {
-    if (loaded) saveTodos(todos);
-  }, [todos, loaded]);
+  if (!loaded) return null;
+
+  const list = (listId === undefined ? lists[0] : lists.find((candidate) => candidate.id === listId)) ?? notFound();
+  const todos = list.todos;
+  const listPath = `/lists/${list.id}`;
+
+  // Save as part of every change so a page opened right after (a new list) reads it.
+  function updateLists(next: TodoList[]) {
+    setLists(next);
+    saveLists(next);
+  }
+
+  function setTodos(next: Todo[]) {
+    updateLists(replaceTodos(lists, list.id, next));
+  }
+
+  function createList(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key !== ENTER_KEY) return;
+    const name = newListName.trim();
+    if (!name) return;
+    const [next, created] = addList(lists, name);
+    updateLists(next);
+    setNewListName("");
+    router.push(`/lists/${created.id}`);
+  }
 
   function addTodo(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key !== ENTER_KEY) return;
@@ -109,17 +136,17 @@ export default function TodoApp({ filter }: { filter: Filter }) {
             </span>
             <ul className="filters">
               <li>
-                <Link href="/" className={filter === "all" ? "selected" : undefined}>
+                <Link href={listPath} className={filter === "all" ? "selected" : undefined}>
                   All
                 </Link>
               </li>
               <li>
-                <Link href="/active" className={filter === "active" ? "selected" : undefined}>
+                <Link href={`${listPath}/active`} className={filter === "active" ? "selected" : undefined}>
                   Active
                 </Link>
               </li>
               <li>
-                <Link href="/completed" className={filter === "completed" ? "selected" : undefined}>
+                <Link href={`${listPath}/completed`} className={filter === "completed" ? "selected" : undefined}>
                   Completed
                 </Link>
               </li>
@@ -132,6 +159,29 @@ export default function TodoApp({ filter }: { filter: Filter }) {
           </footer>
         )}
       </section>
+      <nav className="lists" aria-label="Lists">
+        <ul>
+          {lists.map((candidate) => (
+            <li key={candidate.id}>
+              <Link
+                href={`/lists/${candidate.id}`}
+                className={candidate.id === list.id ? "selected" : undefined}
+                aria-current={candidate.id === list.id ? "page" : undefined}
+              >
+                {candidate.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <label htmlFor="new-list">New list name</label>
+        <input
+          id="new-list"
+          className="new-list"
+          value={newListName}
+          onChange={(event) => setNewListName(event.target.value)}
+          onKeyDown={createList}
+        />
+      </nav>
       <footer className="info">
         <p>Double-click to edit a todo</p>
         <p>
