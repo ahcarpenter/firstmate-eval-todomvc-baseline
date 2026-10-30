@@ -27,3 +27,35 @@
   font-size: 14px;
   color: #777;
 }
+
+.todo-list li .overdue {
+  margin-left: 12px;
+  font-size: 14px;
+  color: #b83f45;
+}
+
+.todo-count .overdue-count {
+  margin-left: 8px;
+  color: #b83f45;
+}
+
+/* Lay the footer out as a row so the overdue count and the fourth filter never overlap. */
+.footer {
+  display: flex;
+  align-items: center;
+  height: auto;
+}
+
+.footer .todo-count {
+  float: none;
+}
+
+.footer .filters {
+  /* Stay positioned so the links sit above the footer's ::before shadow layer and remain clickable. */
+  position: relative;
+  flex: 1;
+}
+
+.footer .clear-completed {
+  float: none;
+}

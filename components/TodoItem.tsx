@@ -6,6 +6,7 @@ import { formatDue, type Todo } from "@/lib/todos";
 type Props = {
   todo: Todo;
   editing: boolean;
+  overdue: boolean;
   onToggle: () => void;
   onDestroy: () => void;
   onEdit: () => void;
@@ -13,7 +14,7 @@ type Props = {
   onCancel: () => void;
 };
 
-export default function TodoItem({ todo, editing, onToggle, onDestroy, onEdit, onSave, onCancel }: Props) {
+export default function TodoItem({ todo, editing, overdue, onToggle, onDestroy, onEdit, onSave, onCancel }: Props) {
   const [editText, setEditText] = useState(todo.title);
 
   function startEditing() {
@@ -40,6 +41,7 @@ export default function TodoItem({ todo, editing, onToggle, onDestroy, onEdit, o
         <label onDoubleClick={startEditing}>
           {todo.title}
           {due && <span className="due">{due}</span>}
+          {overdue && <span className="overdue">Overdue</span>}
         </label>
         <button className="destroy" onClick={onDestroy} />
       </div>

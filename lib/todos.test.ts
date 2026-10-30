@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, formatDue, nextId, pluralize, type Todo } from "./todos";
+import { filterTodos, formatDue, isOverdue, localDay, nextId, pluralize, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -28,16 +28,60 @@ describe("pluralize", () => {
 });
 
 describe("filterTodos", () => {
+  const today = "2026-10-29";
+  const dated: Todo[] = [
+    ...todos,
+    { id: 3, title: "Pay rent", completed: false, due: "2026-10-28" },
+    { id: 4, title: "File taxes", completed: true, due: "2026-10-01" },
+  ];
+
   it("returns everything for all", () => {
-    expect(filterTodos(todos, "all")).toHaveLength(2);
+    expect(filterTodos(todos, "all", today)).toHaveLength(2);
   });
 
   it("returns only active todos", () => {
-    expect(filterTodos(todos, "active").map((todo) => todo.id)).toEqual([1]);
+    expect(filterTodos(todos, "active", today).map((todo) => todo.id)).toEqual([1]);
   });
 
   it("returns only completed todos", () => {
-    expect(filterTodos(todos, "completed").map((todo) => todo.id)).toEqual([2]);
+    expect(filterTodos(todos, "completed", today).map((todo) => todo.id)).toEqual([2]);
+  });
+
+  it("returns only overdue todos", () => {
+    expect(filterTodos(dated, "overdue", today).map((todo) => todo.id)).toEqual([3]);
+  });
+});
+
+describe("isOverdue", () => {
+  const today = "2026-10-29";
+  const todo = (due: string | undefined, completed = false): Todo => ({ id: 1, title: "Pay rent", completed, due });
+
+  it("is overdue when active and due before today", () => {
+    expect(isOverdue(todo("2026-10-28"), today)).toBe(true);
+    expect(isOverdue(todo("2025-12-31"), today)).toBe(true);
+  });
+
+  it("is not overdue when due today or later", () => {
+    expect(isOverdue(todo("2026-10-29"), today)).toBe(false);
+    expect(isOverdue(todo("2026-11-03"), today)).toBe(false);
+  });
+
+  it("is not overdue when completed", () => {
+    expect(isOverdue(todo("2026-10-28", true), today)).toBe(false);
+  });
+
+  it("is not overdue without a valid due date", () => {
+    expect(isOverdue(todo(undefined), today)).toBe(false);
+    expect(isOverdue(todo(""), today)).toBe(false);
+    expect(isOverdue(todo("2026-02-31"), today)).toBe(false);
+    expect(isOverdue(todo("Oct 1"), today)).toBe(false);
+  });
+});
+
+describe("localDay", () => {
+  it("formats the local calendar day as YYYY-MM-DD", () => {
+    expect(localDay(new Date(2026, 0, 5, 23, 59))).toBe("2026-01-05");
+    expect(localDay(new Date(2026, 9, 29, 0, 0))).toBe("2026-10-29");
   });
 });
 
