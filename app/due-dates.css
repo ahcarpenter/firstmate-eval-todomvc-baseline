@@ -64,6 +64,15 @@
   row-gap: 6px;
 }
 
+.footer .sort-by-date {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
 .footer .overdue-count {
   color: #b83f45;
 }

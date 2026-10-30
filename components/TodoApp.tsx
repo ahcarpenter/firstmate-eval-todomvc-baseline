@@ -3,7 +3,20 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import TodoItem from "@/components/TodoItem";
-import { filterTodos, isOverdue, loadTodos, localDate, nextId, pluralize, saveTodos, type Filter, type Todo } from "@/lib/todos";
+import {
+  filterTodos,
+  isOverdue,
+  loadSortByDate,
+  loadTodos,
+  localDate,
+  nextId,
+  pluralize,
+  saveSortByDate,
+  saveTodos,
+  sortByDueDate,
+  type Filter,
+  type Todo,
+} from "@/lib/todos";
 
 const ENTER_KEY = "Enter";
 
@@ -13,17 +26,23 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   const [newTitle, setNewTitle] = useState("");
   const [newDueDate, setNewDueDate] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [sortByDate, setSortByDate] = useState(false);
 
   useEffect(() => {
     // Read storage after mount so the server render and the first client render match.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setTodos(loadTodos());
+    setSortByDate(loadSortByDate());
     setLoaded(true);
   }, []);
 
   useEffect(() => {
     if (loaded) saveTodos(todos);
   }, [todos, loaded]);
+
+  useEffect(() => {
+    if (loaded) saveSortByDate(sortByDate);
+  }, [sortByDate, loaded]);
 
   function addTodo(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key !== ENTER_KEY) return;
@@ -70,7 +89,8 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   }
 
   const today = localDate(new Date());
-  const shown = filterTodos(todos, filter, today);
+  const filtered = filterTodos(todos, filter, today);
+  const shown = sortByDate ? sortByDueDate(filtered) : filtered;
   const activeCount = todos.filter((todo) => !todo.completed).length;
   const completedCount = todos.length - activeCount;
   const overdueCount = todos.filter((todo) => isOverdue(todo, today)).length;
@@ -155,6 +175,10 @@ export default function TodoApp({ filter }: { filter: Filter }) {
                 </Link>
               </li>
             </ul>
+            <label className="sort-by-date">
+              <input type="checkbox" checked={sortByDate} onChange={(event) => setSortByDate(event.target.checked)} />
+              Sort by date
+            </label>
             {completedCount > 0 && (
               <button className="clear-completed" onClick={clearCompleted}>
                 Clear completed
