@@ -41,7 +41,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
     if (event.key !== ENTER_KEY) return;
     const title = newTitle.trim();
     if (!title) return;
-    setTodos([...todos, { id: nextId(todos), title, completed: false }]);
+    setTodos([...todos, { id: nextId(todos), title, completed: false, important: false }]);
     setNewTitle("");
   }
 
@@ -49,6 +49,10 @@ export default function TodoApp({ filter }: { filter: Filter }) {
     // Under the Active or Completed filter, toggling moves the todo out of view.
     if (filter !== "all") refocusAfterRemoving(id);
     setTodos(todos.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo)));
+  }
+
+  function toggleImportant(id: number) {
+    setTodos(todos.map((todo) => (todo.id === id ? { ...todo, important: !todo.important } : todo)));
   }
 
   function toggleAll(completed: boolean) {
@@ -122,6 +126,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
                   todo={todo}
                   editing={editingId === todo.id}
                   onToggle={() => toggle(todo.id)}
+                  onToggleImportant={() => toggleImportant(todo.id)}
                   onDestroy={() => destroyAndRefocus(todo.id)}
                   onEdit={() => setEditingId(todo.id)}
                   onSave={(title) => save(todo.id, title)}

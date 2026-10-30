@@ -42,7 +42,52 @@
 	line-height: 40px;
 }
 
-/* Keep long titles clear of the two row buttons. */
+/* Keep long titles clear of the three row buttons. */
 .todo-list li label {
-	padding-right: 100px;
+	padding-right: 140px;
+}
+
+/*
+	The Important toggle shows an outline star on hover or focus, like the other row buttons,
+	and a filled star that stays visible once the todo is marked important.
+*/
+.todo-list li .important-toggle {
+	display: block;
+	opacity: 0;
+	position: absolute;
+	top: 0;
+	right: 90px;
+	bottom: 0;
+	width: 40px;
+	height: 40px;
+	margin: auto 0;
+	font-size: 24px;
+	color: #949494;
+	transition: color 0.2s ease-out;
+}
+
+.todo-list li:hover .important-toggle,
+.todo-list li:focus-within .important-toggle,
+.todo-list li.important .important-toggle {
+	opacity: 1;
+}
+
+.todo-list li .important-toggle:hover,
+.todo-list li .important-toggle:focus {
+	color: #4d4d4d;
+}
+
+.todo-list li .important-toggle:after {
+	content: '☆';
+	display: block;
+	height: 100%;
+	line-height: 40px;
+}
+
+.todo-list li.important .important-toggle {
+	color: #b8860b;
+}
+
+.todo-list li.important .important-toggle:after {
+	content: '★';
 }

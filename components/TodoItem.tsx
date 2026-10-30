@@ -7,13 +7,14 @@ type Props = {
   todo: Todo;
   editing: boolean;
   onToggle: () => void;
+  onToggleImportant: () => void;
   onDestroy: () => void;
   onEdit: () => void;
   onSave: (title: string) => void;
   onCancel: () => void;
 };
 
-export default function TodoItem({ todo, editing, onToggle, onDestroy, onEdit, onSave, onCancel }: Props) {
+export default function TodoItem({ todo, editing, onToggle, onToggleImportant, onDestroy, onEdit, onSave, onCancel }: Props) {
   const [editText, setEditText] = useState(todo.title);
   const editButton = useRef<HTMLButtonElement>(null);
   // Set once Enter or Escape has finished the edit, so the blur that follows unmounting
@@ -54,7 +55,7 @@ export default function TodoItem({ todo, editing, onToggle, onDestroy, onEdit, o
     if (!finished.current) onSave(editText);
   }
 
-  const classes = [todo.completed ? "completed" : "", editing ? "editing" : ""].filter(Boolean).join(" ");
+  const classes = [todo.completed ? "completed" : "", todo.important ? "important" : "", editing ? "editing" : ""].filter(Boolean).join(" ");
 
   return (
     <li className={classes || undefined} data-todo-id={todo.id}>
@@ -66,7 +67,17 @@ export default function TodoItem({ todo, editing, onToggle, onDestroy, onEdit, o
           onChange={onToggle}
           aria-label={todo.title}
         />
-        <label onDoubleClick={startEditing}>{todo.title}</label>
+        <label id={`todo-${todo.id}-title`} onDoubleClick={startEditing}>
+          {todo.title}
+        </label>
+        <button
+          type="button"
+          className="important-toggle"
+          onClick={onToggleImportant}
+          aria-label="Important"
+          aria-pressed={todo.important}
+          aria-describedby={`todo-${todo.id}-title`}
+        />
         <button
           ref={editButton}
           type="button"

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, nextId, pluralize, type Todo } from "./todos";
+import { filterTodos, nextId, parseTodos, pluralize, type Todo } from "./todos";
 
 const todos: Todo[] = [
-  { id: 1, title: "Buy milk", completed: false },
-  { id: 2, title: "Walk the dog", completed: true },
+  { id: 1, title: "Buy milk", completed: false, important: false },
+  { id: 2, title: "Walk the dog", completed: true, important: true },
 ];
 
 describe("nextId", () => {
@@ -38,5 +38,16 @@ describe("filterTodos", () => {
 
   it("returns only completed todos", () => {
     expect(filterTodos(todos, "completed").map((todo) => todo.id)).toEqual([2]);
+  });
+});
+
+describe("parseTodos", () => {
+  it("keeps the important mark", () => {
+    expect(parseTodos(JSON.stringify(todos))).toEqual(todos);
+  });
+
+  it("reads todos saved without an important mark as not important", () => {
+    const saved = JSON.stringify([{ id: 1, title: "Buy milk", completed: false }]);
+    expect(parseTodos(saved)).toEqual([{ id: 1, title: "Buy milk", completed: false, important: false }]);
   });
 });
