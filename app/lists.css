@@ -1,0 +1,58 @@
+.todoapp .list-name,
+.todoapp .list-missing {
+  margin: 0;
+  padding: 10px 16px 0 60px;
+  font-size: 18px;
+  font-weight: 400;
+  color: #4d4d4d;
+}
+
+.lists {
+  margin: 40px 0 0;
+  padding: 16px;
+  background: #fff;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+  font-size: 15px;
+}
+
+.lists label {
+  display: block;
+  margin-bottom: 6px;
+  color: #4d4d4d;
+}
+
+.lists .new-list {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px;
+  font-size: 18px;
+  border: 1px solid #999;
+}
+
+.lists ul {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lists li {
+  display: inline-block;
+  margin: 0 6px 6px 0;
+}
+
+.lists a {
+  display: inline-block;
+  padding: 3px 7px;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+}
+
+.lists a:hover {
+  border-color: #db7676;
+}
+
+.lists a.selected {
+  border-color: #ce4646;
+}

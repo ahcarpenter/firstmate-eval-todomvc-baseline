@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, nextId, pluralize, type Todo } from "./todos";
+import { addList, filterTodos, listPath, nextId, parseLists, pluralize, slugify, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -38,5 +38,57 @@ describe("filterTodos", () => {
 
   it("returns only completed todos", () => {
     expect(filterTodos(todos, "completed").map((todo) => todo.id)).toEqual([2]);
+  });
+});
+
+describe("listPath", () => {
+  it("leaves out the all filter", () => {
+    expect(listPath("groceries")).toBe("/lists/groceries");
+    expect(listPath("groceries", "all")).toBe("/lists/groceries");
+  });
+
+  it("appends other filters", () => {
+    expect(listPath("groceries", "active")).toBe("/lists/groceries/active");
+    expect(listPath("groceries", "completed")).toBe("/lists/groceries/completed");
+  });
+});
+
+describe("slugify", () => {
+  it("makes a URL-safe id from the name", () => {
+    expect(slugify("  Weekend Chores! ")).toBe("weekend-chores");
+  });
+
+  it("falls back when nothing is left", () => {
+    expect(slugify("!!!")).toBe("list");
+  });
+});
+
+describe("addList", () => {
+  it("appends an empty list", () => {
+    expect(addList([], "Groceries")).toEqual([{ id: "groceries", name: "Groceries", todos: [] }]);
+  });
+
+  it("keeps ids unique", () => {
+    const lists = addList(addList([], "Groceries"), "groceries");
+    expect(addList(lists, "Groceries!").map((list) => list.id)).toEqual(["groceries", "groceries-2", "groceries-3"]);
+  });
+});
+
+describe("parseLists", () => {
+  it("starts with an empty Todos list", () => {
+    expect(parseLists(null, null)).toEqual([{ id: "todos", name: "Todos", todos: [] }]);
+  });
+
+  it("moves legacy todos into a Todos list", () => {
+    expect(parseLists(null, JSON.stringify(todos))).toEqual([{ id: "todos", name: "Todos", todos }]);
+  });
+
+  it("prefers saved lists over legacy todos", () => {
+    const lists = [{ id: "groceries", name: "Groceries", todos: [] }];
+    expect(parseLists(JSON.stringify(lists), JSON.stringify(todos))).toEqual(lists);
+  });
+
+  it("ignores unreadable storage", () => {
+    expect(parseLists("{", "{")).toEqual([{ id: "todos", name: "Todos", todos: [] }]);
   });
 });

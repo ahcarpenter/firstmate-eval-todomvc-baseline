@@ -14,5 +14,6 @@ export default async function Page({ params }: { params: Promise<{ filter?: stri
   if ((filter && filter.length > 1) || !FILTERS.includes(name as Filter)) {
     notFound();
   }
-  return <TodoApp filter={name as Filter} />;
+  // With no list in the URL, TodoApp opens the first list.
+  return <TodoApp listId={null} filter={name as Filter} />;
 }
