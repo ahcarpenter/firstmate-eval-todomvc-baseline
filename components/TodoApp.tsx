@@ -29,12 +29,16 @@ export default function TodoApp({ filter }: { filter: Filter }) {
     if (event.key !== ENTER_KEY) return;
     const title = newTitle.trim();
     if (!title) return;
-    setTodos([...todos, { id: nextId(todos), title, completed: false }]);
+    setTodos([...todos, { id: nextId(todos), title, completed: false, important: false }]);
     setNewTitle("");
   }
 
   function toggle(id: number) {
     setTodos(todos.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo)));
+  }
+
+  function toggleImportant(id: number) {
+    setTodos(todos.map((todo) => (todo.id === id ? { ...todo, important: !todo.important } : todo)));
   }
 
   function toggleAll(completed: boolean) {
@@ -96,6 +100,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
                   todo={todo}
                   editing={editingId === todo.id}
                   onToggle={() => toggle(todo.id)}
+                  onToggleImportant={() => toggleImportant(todo.id)}
                   onDestroy={() => {
                     destroy(todo.id);
                     // The focused delete button is gone; keep keyboard focus in the app.

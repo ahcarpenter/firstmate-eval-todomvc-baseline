@@ -12,6 +12,7 @@ test("every todo control has an accessible name", async ({ page }) => {
   await expect(page.getByRole("checkbox", { name: "Mark all as complete" })).toBeAttached();
   await expect(page.getByRole("button", { name: "Edit Buy milk" })).toBeAttached();
   await expect(page.getByRole("button", { name: "Delete Buy milk" })).toBeAttached();
+  await expect(page.getByRole("button", { name: "Important", pressed: false })).toBeAttached();
   await expect(page.getByRole("link", { name: "All" })).toHaveAttribute("aria-current", "page");
 });
 
@@ -23,8 +24,34 @@ test("toggles a todo from the keyboard", async ({ page }) => {
   await expect(page.locator(".todo-count")).toHaveText("0 items left");
 });
 
-test("edits a todo from the keyboard", async ({ page }) => {
+test("marks a todo important from the keyboard and keeps it after reload", async ({ page }) => {
   await page.getByRole("checkbox", { name: "Buy milk" }).focus();
+  await page.keyboard.press("Tab");
+  const important = page.getByRole("button", { name: "Important" });
+  await expect(important).toBeFocused();
+  await expect(important).toHaveCSS("opacity", "1");
+  await expect(important).toHaveAttribute("aria-pressed", "false");
+
+  await page.keyboard.press("Enter");
+  await expect(important).toHaveAttribute("aria-pressed", "true");
+  await expect(important).toBeFocused();
+
+  // Move focus away: an important todo still shows its star.
+  await page.getByRole("textbox", { name: "New todo" }).focus();
+  await expect(important).toHaveCSS("opacity", "1");
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Important" })).toHaveAttribute("aria-pressed", "true");
+
+  await page.getByRole("button", { name: "Important" }).focus();
+  await page.keyboard.press("Space");
+  await expect(page.getByRole("button", { name: "Important" })).toHaveAttribute("aria-pressed", "false");
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Important" })).toHaveAttribute("aria-pressed", "false");
+});
+
+test("edits a todo from the keyboard", async ({ page }) => {
+  await page.getByRole("button", { name: "Important" }).focus();
   await page.keyboard.press("Tab");
   const editButton = page.getByRole("button", { name: "Edit Buy milk" });
   await expect(editButton).toBeFocused();

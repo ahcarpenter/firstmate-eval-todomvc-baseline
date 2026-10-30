@@ -16,7 +16,7 @@
 }
 
 .todo-list li label {
-  padding-right: 100px;
+  padding-right: 145px;
 }
 
 .todo-list li .edit-button {
@@ -42,4 +42,45 @@
   display: block;
   height: 100%;
   line-height: 40px;
+}
+
+/* Important star: always shown once set, otherwise revealed like the other item buttons. */
+.todo-list li .important-button {
+  position: absolute;
+  top: 0;
+  right: 100px;
+  bottom: 0;
+  width: 40px;
+  height: 40px;
+  margin: auto 0;
+  font-size: 24px;
+  color: #949494;
+  opacity: 0;
+  transition: color 0.2s ease-out;
+}
+
+.todo-list li:hover .important-button,
+.todo-list li:focus-within .important-button,
+.todo-list li.important .important-button {
+  opacity: 1;
+}
+
+.todo-list li .important-button:hover,
+.todo-list li .important-button:focus {
+  color: #484848;
+}
+
+.todo-list li .important-button:after {
+  content: "☆";
+  display: block;
+  height: 100%;
+  line-height: 40px;
+}
+
+.todo-list li.important .important-button {
+  color: #c98a00;
+}
+
+.todo-list li.important .important-button:after {
+  content: "★";
 }

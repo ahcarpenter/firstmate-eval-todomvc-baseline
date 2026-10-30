@@ -2,6 +2,7 @@ export type Todo = {
   id: number;
   title: string;
   completed: boolean;
+  important: boolean;
 };
 
 export type Filter = "all" | "active" | "completed";
@@ -27,7 +28,9 @@ export function filterTodos(todos: Todo[], filter: Filter): Todo[] {
 export function loadTodos(): Todo[] {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Todo[]) : [];
+    if (!raw) return [];
+    // Todos saved before the important flag existed don't have it.
+    return (JSON.parse(raw) as Todo[]).map((todo) => ({ ...todo, important: todo.important === true }));
   } catch {
     return [];
   }
