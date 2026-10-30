@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, formatDue, isOverdue, nextId, pluralize, todayKey, type Todo } from "./todos";
+import { editTodo, filterTodos, formatDue, isOverdue, nextId, pluralize, todayKey, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -82,5 +82,21 @@ describe("overdue", () => {
 
   it("filters to overdue todos", () => {
     expect(filterTodos(dated, "overdue", today).map((todo) => todo.id)).toEqual([1, 6]);
+  });
+});
+
+describe("editTodo", () => {
+  const todo: Todo = { id: 1, title: "Pay rent", completed: false, due: "2026-11-03" };
+
+  it("sets the title and the new date", () => {
+    expect(editTodo(todo, "Pay bills", "2026-11-10")).toEqual({ ...todo, title: "Pay bills", due: "2026-11-10" });
+  });
+
+  it("removes the date when it is cleared", () => {
+    expect(editTodo(todo, "Pay rent", "")).toEqual({ id: 1, title: "Pay rent", completed: false });
+  });
+
+  it("adds a date to a todo without one", () => {
+    expect(editTodo({ id: 2, title: "Buy milk", completed: false }, "Buy milk", "2026-10-29").due).toBe("2026-10-29");
   });
 });

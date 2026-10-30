@@ -44,3 +44,30 @@
   margin-left: 12px;
   color: #b83f45;
 }
+
+.todo-list li .edit-row {
+  display: flex;
+  align-items: center;
+}
+
+.todo-list li.editing .edit-row .edit {
+  flex: 1;
+  width: auto;
+}
+
+.todo-list li .edit-due {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 12px;
+  font-size: 12px;
+  color: #777;
+  white-space: nowrap;
+}
+
+.todo-list li .edit-due input {
+  font-family: inherit;
+  font-size: 14px;
+  border: none;
+  background: none;
+}

@@ -57,3 +57,50 @@ test("marks overdue todos, filters them, and counts them", async ({ page }) => {
   await page.reload();
   await expect(items.locator("label")).toHaveText(["File taxes"]);
 });
+
+test("edits a todo's due date, and overdue follows it", async ({ page }) => {
+  await page.clock.setFixedTime(new Date(2026, 9, 30, 12));
+  await page.goto("/");
+  await page.getByLabel("Due date").fill("2026-11-03");
+  const input = page.getByPlaceholder("What needs to be done?");
+  await input.fill("Pay rent");
+  await input.press("Enter");
+  const item = page.locator(".todo-list li").first();
+
+  // Enter in the date field saves the title and the date.
+  await item.locator("label").dblclick();
+  await expect(page.getByLabel("Change date")).toHaveValue("2026-11-03");
+  await item.locator(".edit").fill("Pay the rent");
+  await page.getByLabel("Change date").fill("2026-10-28");
+  await page.getByLabel("Change date").press("Enter");
+  await expect(item.locator("label")).toHaveText("Pay the rent");
+  await expect(item.locator(".todo-due")).toHaveText("Due Oct 28");
+  await expect(item.locator(".todo-overdue")).toHaveText("Overdue");
+  await expect(page.locator(".overdue-count")).toHaveText("1 overdue");
+
+  // Escape cancels both fields.
+  await item.locator("label").dblclick();
+  await item.locator(".edit").fill("Something else");
+  await page.getByLabel("Change date").fill("2026-12-01");
+  await page.getByLabel("Change date").press("Escape");
+  await expect(page.getByLabel("Change date")).toHaveCount(0);
+  await expect(item.locator("label")).toHaveText("Pay the rent");
+  await expect(item.locator(".todo-due")).toHaveText("Due Oct 28");
+
+  // Enter in the title field saves a future date and clears the overdue mark.
+  await item.locator("label").dblclick();
+  await page.getByLabel("Change date").fill("2026-11-05");
+  await item.locator(".edit").press("Enter");
+  await expect(item.locator(".todo-due")).toHaveText("Due Nov 5");
+  await expect(item.locator(".todo-overdue")).toHaveCount(0);
+  await expect(page.locator(".overdue-count")).toHaveCount(0);
+
+  // Clearing the date removes it, and that survives a reload.
+  await item.locator("label").dblclick();
+  await page.getByLabel("Change date").fill("");
+  await page.getByLabel("Change date").press("Enter");
+  await expect(item.locator(".todo-due")).toHaveCount(0);
+  await page.reload();
+  await expect(item.locator("label")).toHaveText("Pay the rent");
+  await expect(item.locator(".todo-due")).toHaveCount(0);
+});

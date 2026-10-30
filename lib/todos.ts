@@ -44,6 +44,14 @@ export function isOverdue(todo: Todo, today: string): boolean {
   return todo.due < today;
 }
 
+// Apply an edit; an empty `due` removes the date.
+export function editTodo(todo: Todo, title: string, due: string): Todo {
+  const edited: Todo = { ...todo, title };
+  if (due) edited.due = due;
+  else delete edited.due;
+  return edited;
+}
+
 export function filterTodos(todos: Todo[], filter: Filter, today: string = todayKey()): Todo[] {
   if (filter === "active") return todos.filter((todo) => !todo.completed);
   if (filter === "completed") return todos.filter((todo) => todo.completed);
