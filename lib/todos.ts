@@ -30,6 +30,13 @@ export function filterTodos(todos: Todo[], filter: Filter, today: string): Todo[
   return todos;
 }
 
+/** Keeps the todos whose title contains `query`, ignoring letter case; an empty query keeps them all. */
+export function searchTodos(todos: Todo[], query: string): Todo[] {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return todos;
+  return todos.filter((todo) => todo.title.toLowerCase().includes(needle));
+}
+
 const DUE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 /** Parses a `YYYY-MM-DD` due date as a UTC midnight date, or returns null when it is missing or malformed. */

@@ -165,3 +165,28 @@ test("labels todos due today or tomorrow by the local calendar", async ({ page }
   await expect(dues).toHaveText(["Due today", "Due tomorrow", "Due Oct 31"]);
   await expect(page.locator(".todo-list li .overdue")).toHaveCount(0);
 });
+
+test("searches titles within the current filter, ignoring case", async ({ page }) => {
+  await page.goto("/");
+  const input = page.getByPlaceholder("What needs to be done?");
+  for (const title of ["Buy milk", "Buy bread", "Walk the dog"]) {
+    await input.fill(title);
+    await input.press("Enter");
+  }
+  await page.locator(".todo-list li", { hasText: "Buy bread" }).locator(".toggle").click();
+  const titles = page.locator(".todo-list li label");
+  const search = page.getByLabel("Search");
+
+  await search.fill("bUY");
+  await expect(titles).toHaveText(["Buy milk", "Buy bread"]);
+  await expect(page.locator(".todo-count")).toHaveText("2 items left");
+
+  await page.getByRole("link", { name: "Active" }).click();
+  await expect(page).toHaveURL(/\/active$/);
+  await search.fill("buy");
+  await expect(titles).toHaveText(["Buy milk"]);
+  await expect(page.locator(".todo-count")).toHaveText("2 items left");
+
+  await search.fill("");
+  await expect(titles).toHaveText(["Buy milk", "Walk the dog"]);
+});

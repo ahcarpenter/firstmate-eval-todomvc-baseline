@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, formatDue, isOverdue, localDay, nextId, pluralize, sortByDue, type Todo } from "./todos";
+import { filterTodos, formatDue, isOverdue, localDay, nextId, pluralize, searchTodos, sortByDue, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -140,5 +140,21 @@ describe("formatDue", () => {
   it("returns null for malformed or impossible dates", () => {
     expect(formatDue("Nov 3", today)).toBeNull();
     expect(formatDue("2026-02-31", today)).toBeNull();
+  });
+});
+
+describe("searchTodos", () => {
+  it("keeps the todos whose title contains the query, ignoring case", () => {
+    expect(searchTodos(todos, "MILK").map((todo) => todo.id)).toEqual([1]);
+    expect(searchTodos(todos, "the d").map((todo) => todo.id)).toEqual([2]);
+  });
+
+  it("keeps every todo for an empty or blank query", () => {
+    expect(searchTodos(todos, "")).toEqual(todos);
+    expect(searchTodos(todos, "  ")).toEqual(todos);
+  });
+
+  it("returns nothing when no title matches", () => {
+    expect(searchTodos(todos, "rent")).toEqual([]);
   });
 });

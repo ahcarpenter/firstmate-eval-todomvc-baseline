@@ -13,6 +13,7 @@ import {
   pluralize,
   saveSortByDue,
   saveTodos,
+  searchTodos,
   sortByDue as sortTodosByDue,
   type Filter,
   type Todo,
@@ -27,6 +28,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   const [newDue, setNewDue] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [sortByDue, setSortByDue] = useState(false);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     // Read storage after mount so the server render and the first client render match.
@@ -85,7 +87,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
 
   // Todos load only after mount, so reading the clock here cannot cause a hydration mismatch.
   const today = localDay(new Date());
-  const filtered = filterTodos(todos, filter, today);
+  const filtered = searchTodos(filterTodos(todos, filter, today), search);
   const shown = sortByDue ? sortTodosByDue(filtered) : filtered;
   const activeCount = todos.filter((todo) => !todo.completed).length;
   const completedCount = todos.length - activeCount;
@@ -121,6 +123,10 @@ export default function TodoApp({ filter }: { filter: Filter }) {
               onChange={(event) => toggleAll(event.target.checked)}
             />
             <label htmlFor="toggle-all">Mark all as complete</label>
+            <label className="search">
+              Search
+              <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} />
+            </label>
             <ul className="todo-list">
               {shown.map((todo) => (
                 <TodoItem
