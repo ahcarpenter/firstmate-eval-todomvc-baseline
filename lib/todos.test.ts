@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, nextId, pluralize, restoreTodo, type Todo } from "./todos";
+import { filterTodos, nextId, pluralize, restoreTodo, restoreTodos, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -61,5 +61,28 @@ describe("restoreTodo", () => {
     const restored = restoreTodo(withReuse, deleted, 2);
     expect(restored.map((todo) => todo.id)).toEqual([1, 2, 4, 3]);
     expect(restored[2].title).toBe("Call mum");
+  });
+});
+
+describe("restoreTodos", () => {
+  const all: Todo[] = [
+    { id: 1, title: "Buy milk", completed: true },
+    { id: 2, title: "Walk the dog", completed: false },
+    { id: 3, title: "Call mum", completed: true },
+    { id: 4, title: "Pay rent", completed: true },
+  ];
+  const removed = [
+    { todo: all[3], index: 3 },
+    { todo: all[0], index: 0 },
+    { todo: all[2], index: 2 },
+  ];
+
+  it("puts every todo back at its old position", () => {
+    expect(restoreTodos([all[1]], removed)).toEqual(all);
+  });
+
+  it("keeps todos added since the removal after the restored ones", () => {
+    const added = { id: 5, title: "New", completed: false };
+    expect(restoreTodos([all[1], added], removed).map((todo) => todo.id)).toEqual([1, 2, 3, 4, 5]);
   });
 });

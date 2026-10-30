@@ -9,15 +9,17 @@ import {
   loadTodos,
   nextId,
   pluralize,
-  restoreTodo,
+  restoreTodos,
   saveTodos,
   type Filter,
+  type Removed,
   type Todo,
 } from "@/lib/todos";
 
 const ENTER_KEY = "Enter";
 
-type Deleted = { todo: Todo; index: number };
+// What the undo toast can bring back: one deleted todo or every cleared one.
+type Deleted = { removed: Removed[]; message: string };
 
 export default function TodoApp({ filter }: { filter: Filter }) {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -38,7 +40,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   }, [todos, loaded]);
 
   useEffect(() => {
-    // Each delete starts a fresh undo window; a newer delete replaces the older one.
+    // Each delete or clear starts a fresh undo window and replaces any older one.
     if (!deleted) return;
     const timer = setTimeout(() => setDeleted(null), UNDO_DELETE_MS);
     return () => clearTimeout(timer);
@@ -63,13 +65,14 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   function destroy(id: number) {
     const index = todos.findIndex((todo) => todo.id === id);
     if (index === -1) return;
-    setDeleted({ todo: todos[index], index });
-    setTodos(todos.filter((todo) => todo.id !== id));
+    const todo = todos[index];
+    setDeleted({ removed: [{ todo, index }], message: `Deleted “${todo.title}”` });
+    setTodos(todos.filter((other) => other.id !== id));
   }
 
   function undoDelete() {
     if (!deleted) return;
-    setTodos(restoreTodo(todos, deleted.todo, deleted.index));
+    setTodos(restoreTodos(todos, deleted.removed));
     setDeleted(null);
   }
 
@@ -84,6 +87,9 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   }
 
   function clearCompleted() {
+    const removed = todos.flatMap((todo, index) => (todo.completed ? [{ todo, index }] : []));
+    if (removed.length === 0) return;
+    setDeleted({ removed, message: `Cleared ${removed.length} completed ${pluralize(removed.length, "todo")}` });
     setTodos(todos.filter((todo) => !todo.completed));
   }
 
@@ -164,7 +170,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
       <div className="undo-toast" role="status">
         {deleted && (
           <>
-            <span>Deleted &ldquo;{deleted.todo.title}&rdquo;</span>
+            <span>{deleted.message}</span>
             <button onClick={undoDelete}>Undo</button>
           </>
         )}

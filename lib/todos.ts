@@ -12,6 +12,9 @@ export const STORAGE_KEY = "todos-nextjs";
 
 export const UNDO_DELETE_MS = 5000;
 
+// A removed todo and the position it had before it was removed.
+export type Removed = { todo: Todo; index: number };
+
 export function nextId(todos: Todo[]): number {
   return todos.reduce((max, todo) => Math.max(max, todo.id), 0) + 1;
 }
@@ -22,6 +25,14 @@ export function restoreTodo(todos: Todo[], todo: Todo, index: number): Todo[] {
   const restored = todos.some((other) => other.id === todo.id) ? { ...todo, id: nextId(todos) } : todo;
   const at = Math.min(Math.max(index, 0), todos.length);
   return [...todos.slice(0, at), restored, ...todos.slice(at)];
+}
+
+// Puts removed todos back at their old positions. Restoring in order of old
+// position means each one lands where it was once the ones before it are back.
+export function restoreTodos(todos: Todo[], removed: Removed[]): Todo[] {
+  return [...removed]
+    .sort((a, b) => a.index - b.index)
+    .reduce((list, { todo, index }) => restoreTodo(list, todo, index), todos);
 }
 
 export function pluralize(count: number, word: string): string {
