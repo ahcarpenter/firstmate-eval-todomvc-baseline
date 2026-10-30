@@ -25,3 +25,24 @@ test("counts completed todos", async ({ page }) => {
   await page.getByRole("button", { name: "Clear completed" }).click();
   await expect(completedCount).toHaveText("0 completed");
 });
+
+test("shows completion progress", async ({ page }) => {
+  await page.goto("/");
+  const progress = page.getByRole("progressbar", { name: "Todos completed" });
+  await expect(progress).toHaveCount(0);
+  const input = page.getByPlaceholder("What needs to be done?");
+  for (const title of ["Buy milk", "Walk the dog"]) {
+    await input.fill(title);
+    await input.press("Enter");
+  }
+  await expect(progress).toHaveText("0% complete");
+  await page.locator(".todo-list li .toggle").first().check();
+  await expect(progress).toHaveText("50% complete");
+  await expect(progress).toHaveAttribute("aria-valuenow", "50");
+  await page.locator(".todo-list li").first().hover();
+  await page.locator(".todo-list li .destroy").first().click();
+  await expect(progress).toHaveText("0% complete");
+  await page.locator(".todo-list li").first().hover();
+  await page.locator(".todo-list li .destroy").first().click();
+  await expect(progress).toHaveCount(0);
+});

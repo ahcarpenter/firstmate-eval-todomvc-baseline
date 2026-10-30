@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, nextId, pluralize, type Todo } from "./todos";
+import { filterTodos, nextId, percentComplete, pluralize, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -38,5 +38,16 @@ describe("filterTodos", () => {
 
   it("returns only completed todos", () => {
     expect(filterTodos(todos, "completed").map((todo) => todo.id)).toEqual([2]);
+  });
+});
+
+describe("percentComplete", () => {
+  it("is 0 for an empty list", () => {
+    expect(percentComplete([])).toBe(0);
+  });
+
+  it("is the rounded share of completed todos", () => {
+    expect(percentComplete(todos)).toBe(50);
+    expect(percentComplete([...todos, { id: 3, title: "Read", completed: false }])).toBe(33);
   });
 });
