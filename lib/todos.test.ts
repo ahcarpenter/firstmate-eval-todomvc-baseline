@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, formatDue, isOverdue, nextId, pluralize, todayKey, type Todo } from "./todos";
+import { filterTodos, formatDue, isOverdue, nextId, pluralize, todayKey, tomorrowKey, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -58,6 +58,18 @@ describe("todayKey", () => {
   it("uses the local calendar date", () => {
     expect(todayKey(new Date(2026, 9, 30, 23, 59))).toBe("2026-10-30");
     expect(todayKey(new Date(2027, 0, 5))).toBe("2027-01-05");
+  });
+});
+
+describe("tomorrowKey", () => {
+  it("uses the next local calendar date", () => {
+    expect(tomorrowKey(new Date(2026, 9, 30, 23, 59))).toBe("2026-10-31");
+  });
+
+  it("rolls over month and year ends", () => {
+    expect(tomorrowKey(new Date(2026, 9, 31))).toBe("2026-11-01");
+    expect(tomorrowKey(new Date(2026, 11, 31))).toBe("2027-01-01");
+    expect(tomorrowKey(new Date(2028, 1, 28))).toBe("2028-02-29");
   });
 });
 

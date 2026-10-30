@@ -39,6 +39,11 @@ export function todayKey(now: Date = new Date()): string {
   return `${now.getFullYear()}-${month}-${day}`;
 }
 
+// Tomorrow's local calendar date; the Date constructor rolls over month and year ends.
+export function tomorrowKey(now: Date = new Date()): string {
+  return todayKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1));
+}
+
 export function isOverdue(todo: Todo, today: string): boolean {
   if (todo.completed || !todo.due || formatDue(todo.due) === null) return false;
   return todo.due < today;

@@ -9,12 +9,13 @@ type Props = {
   editing: boolean;
   onToggle: () => void;
   onDestroy: () => void;
+  onSnooze: () => void;
   onEdit: () => void;
   onSave: (title: string) => void;
   onCancel: () => void;
 };
 
-export default function TodoItem({ todo, overdue, editing, onToggle, onDestroy, onEdit, onSave, onCancel }: Props) {
+export default function TodoItem({ todo, overdue, editing, onToggle, onDestroy, onSnooze, onEdit, onSave, onCancel }: Props) {
   const [editText, setEditText] = useState(todo.title);
 
   function startEditing() {
@@ -41,6 +42,11 @@ export default function TodoItem({ todo, overdue, editing, onToggle, onDestroy, 
         <label onDoubleClick={startEditing}>{todo.title}</label>
         {due && <span className="todo-due">{due}</span>}
         {overdue && <span className="todo-overdue">Overdue</span>}
+        {overdue && (
+          <button className="todo-snooze" onClick={onSnooze}>
+            Snooze
+          </button>
+        )}
         <button className="destroy" onClick={onDestroy} />
       </div>
       {editing && (
