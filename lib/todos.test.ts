@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { editTodo, filterTodos, formatDue, isOverdue, nextId, pluralize, sortByDue, todayKey, type Todo } from "./todos";
+import { editTodo, filterTodos, formatDue, isOverdue, nextId, pluralize, sortByDue, todayKey, tomorrowKey, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -47,6 +47,14 @@ describe("formatDue", () => {
     expect(formatDue("2027-01-31")).toBe("Due Jan 31");
   });
 
+  it("says today or tomorrow for those days and keeps the date otherwise", () => {
+    expect(formatDue("2026-10-30", "2026-10-30")).toBe("Due today");
+    expect(formatDue("2026-10-31", "2026-10-30")).toBe("Due tomorrow");
+    expect(formatDue("2026-10-29", "2026-10-30")).toBe("Due Oct 29");
+    expect(formatDue("2026-11-01", "2026-10-30")).toBe("Due Nov 1");
+    expect(formatDue("2027-01-01", "2026-12-31")).toBe("Due tomorrow");
+  });
+
   it("ignores values that are not dates", () => {
     expect(formatDue("")).toBeNull();
     expect(formatDue("2026-13-01")).toBeNull();
@@ -58,6 +66,15 @@ describe("todayKey", () => {
   it("uses the local calendar date", () => {
     expect(todayKey(new Date(2026, 9, 30, 23, 59))).toBe("2026-10-30");
     expect(todayKey(new Date(2027, 0, 5))).toBe("2027-01-05");
+  });
+});
+
+describe("tomorrowKey", () => {
+  it("rolls over months, years, and leap days", () => {
+    expect(tomorrowKey("2026-10-30")).toBe("2026-10-31");
+    expect(tomorrowKey("2026-10-31")).toBe("2026-11-01");
+    expect(tomorrowKey("2026-12-31")).toBe("2027-01-01");
+    expect(tomorrowKey("2028-02-28")).toBe("2028-02-29");
   });
 });
 

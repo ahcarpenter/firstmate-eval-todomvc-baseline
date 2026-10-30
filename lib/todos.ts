@@ -25,12 +25,15 @@ export function pluralize(count: number, word: string): string {
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 // Read the date parts directly so the shown day never shifts with the time zone.
-export function formatDue(due: string): string | null {
+// Given `today`, a date due today or tomorrow reads as "Due today" or "Due tomorrow".
+export function formatDue(due: string, today?: string): string | null {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(due);
   if (!match) return null;
   const month = MONTHS[Number(match[2]) - 1];
   const day = Number(match[3]);
   if (!month || day < 1 || day > 31) return null;
+  if (today && due === today) return "Due today";
+  if (today && due === tomorrowKey(today)) return "Due tomorrow";
   return `Due ${month} ${day}`;
 }
 
@@ -39,6 +42,12 @@ export function todayKey(now: Date = new Date()): string {
   const month = String(now.getMonth() + 1).padStart(2, "0");
   const day = String(now.getDate()).padStart(2, "0");
   return `${now.getFullYear()}-${month}-${day}`;
+}
+
+// The calendar day after `today`; Date rolls the day over months and years.
+export function tomorrowKey(today: string): string {
+  const [year, month, day] = today.split("-").map(Number);
+  return todayKey(new Date(year, month - 1, day + 1));
 }
 
 export function isOverdue(todo: Todo, today: string): boolean {
