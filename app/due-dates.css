@@ -34,3 +34,34 @@
   font-size: 14px;
   color: #949494;
 }
+
+.todo-list li label .overdue {
+  margin-left: 8px;
+  font-size: 14px;
+  color: #b83f45;
+}
+
+/* With a fourth filter and the overdue count, the stock absolutely centered
+   filters overlap the counts, so lay the footer out as one flex row. The
+   filters stay positioned so they paint above the footer's :before shadow
+   overlay and still receive clicks. */
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: auto;
+}
+
+.footer .filters {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  row-gap: 6px;
+}
+
+.footer .overdue-count {
+  color: #b83f45;
+}

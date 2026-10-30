@@ -6,9 +6,9 @@ export type Todo = {
   dueDate?: string;
 };
 
-export type Filter = "all" | "active" | "completed";
+export type Filter = "all" | "active" | "completed" | "overdue";
 
-export const FILTERS: Filter[] = ["all", "active", "completed"];
+export const FILTERS: Filter[] = ["all", "active", "completed", "overdue"];
 
 export const STORAGE_KEY = "todos-nextjs";
 
@@ -29,9 +29,23 @@ export function formatDueDate(dueDate: string): string {
   return `Due ${MONTHS[month - 1]} ${day}`;
 }
 
-export function filterTodos(todos: Todo[], filter: Filter): Todo[] {
+// The viewer's local calendar date as YYYY-MM-DD, comparable with dueDate.
+export function localDate(now: Date): string {
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${month}-${day}`;
+}
+
+// A todo is overdue when it is not completed and its due date is before today.
+// YYYY-MM-DD strings sort in date order, so a string comparison is enough.
+export function isOverdue(todo: Todo, today: string): boolean {
+  return !todo.completed && todo.dueDate !== undefined && todo.dueDate < today;
+}
+
+export function filterTodos(todos: Todo[], filter: Filter, today: string): Todo[] {
   if (filter === "active") return todos.filter((todo) => !todo.completed);
   if (filter === "completed") return todos.filter((todo) => todo.completed);
+  if (filter === "overdue") return todos.filter((todo) => isOverdue(todo, today));
   return todos;
 }
 
