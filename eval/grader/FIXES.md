@@ -1,0 +1,9 @@
+# Grader fixes after the runs
+
+The bar's rule (BAR.md, Grading and the amendment): a hidden test found defective after the runs is fixed once, every result of both arms is re-graded with the fixed test, and the report lists the change with both scores.
+All four fixes below were made together, on 2026-10-30, after every run had finished and before any arm comparison was read; each one fails results of both arms alike for a reason the ask does not support.
+
+1. `helpers.ts`, `item()`: a todo was found by a label that starts with its title and is not followed by a word character. Implementations that render the due date as its own element right after the title read as "Pay rentDue Nov 3", so the helper found no todo, and every due-date, overdue, and later chain test failed on them (five of six results in each date task, in both arms). The title may now be followed by anything but a lowercase letter or digit, which still keeps "Late" from matching "Later".
+2. `tasks/search.spec.ts`, "searches within the current filter": the test typed into the search field right after clicking the Active filter, before the new view replaced the old one, so the text could land in the page being replaced. It now waits for the Active view, as a person would, before typing.
+3. `tasks/multiple-lists.spec.ts`, "keeps existing todos in a list called Todos": the ask says "`/` opens the first list"; the test also required the address to change to `/lists/<id>`. Showing the first list at `/` meets the ask, so either address is accepted.
+4. `regression.spec.ts`, "counts active todos with the right plural": the counter had to read exactly "N items left". A change that adds a completed count inside the same element ("0 items left · 2 completed") still counts and pluralizes correctly, so text after the count is now allowed.
