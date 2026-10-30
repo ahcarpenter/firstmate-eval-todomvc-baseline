@@ -1,0 +1,48 @@
+/* Keyboard and screen reader additions on top of todomvc-app-css. */
+
+/*
+	The row buttons are hidden with opacity rather than display: none, so they stay in the
+	accessibility tree and the tab order, and appear on hover or whenever the row has focus.
+*/
+.todo-list li .destroy,
+.todo-list li .edit-button {
+	display: block;
+	opacity: 0;
+}
+
+.todo-list li:hover .destroy,
+.todo-list li:focus-within .destroy,
+.todo-list li:hover .edit-button,
+.todo-list li:focus-within .edit-button {
+	opacity: 1;
+}
+
+.todo-list li .edit-button {
+	position: absolute;
+	top: 0;
+	right: 50px;
+	bottom: 0;
+	width: 40px;
+	height: 40px;
+	margin: auto 0;
+	font-size: 22px;
+	color: #949494;
+	transition: color 0.2s ease-out;
+}
+
+.todo-list li .edit-button:hover,
+.todo-list li .edit-button:focus {
+	color: #4d4d4d;
+}
+
+.todo-list li .edit-button:after {
+	content: '✎';
+	display: block;
+	height: 100%;
+	line-height: 40px;
+}
+
+/* Keep long titles clear of the two row buttons. */
+.todo-list li label {
+	padding-right: 100px;
+}
