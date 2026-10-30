@@ -10,8 +10,33 @@ export const FILTERS: Filter[] = ["all", "active", "completed"];
 
 export const STORAGE_KEY = "todos-nextjs";
 
+export const UNDO_TIMEOUT_MS = 5000;
+
+/** A todo taken out of the list, with the position it held, so it can be put back. */
+export type Removed = { todo: Todo; index: number };
+
 export function nextId(todos: Todo[]): number {
-  return todos.length + 1;
+  // Follow the highest id, not the count, so ids stay unique after deletes and undos.
+  return todos.reduce((max, todo) => Math.max(max, todo.id), 0) + 1;
+}
+
+export function removeTodos(todos: Todo[], shouldRemove: (todo: Todo) => boolean): { kept: Todo[]; removed: Removed[] } {
+  const kept: Todo[] = [];
+  const removed: Removed[] = [];
+  todos.forEach((todo, index) => {
+    if (shouldRemove(todo)) removed.push({ todo, index });
+    else kept.push(todo);
+  });
+  return { kept, removed };
+}
+
+export function restoreTodos(todos: Todo[], removed: Removed[]): Todo[] {
+  const restored = [...todos];
+  // Ascending order puts each todo back where it was relative to the ones restored before it.
+  for (const { todo, index } of [...removed].sort((a, b) => a.index - b.index)) {
+    restored.splice(Math.min(index, restored.length), 0, todo);
+  }
+  return restored;
 }
 
 export function pluralize(count: number, word: string): string {

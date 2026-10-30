@@ -3,7 +3,19 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import TodoItem from "@/components/TodoItem";
-import { filterTodos, loadTodos, nextId, pluralize, saveTodos, type Filter, type Todo } from "@/lib/todos";
+import {
+  filterTodos,
+  loadTodos,
+  nextId,
+  pluralize,
+  removeTodos,
+  restoreTodos,
+  saveTodos,
+  UNDO_TIMEOUT_MS,
+  type Filter,
+  type Removed,
+  type Todo,
+} from "@/lib/todos";
 
 const ENTER_KEY = "Enter";
 
@@ -12,6 +24,8 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   const [loaded, setLoaded] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
+  // The most recent deletion, kept for a few seconds so it can be undone.
+  const [lastRemoved, setLastRemoved] = useState<Removed[]>([]);
 
   useEffect(() => {
     // Read storage after mount so the server render and the first client render match.
@@ -24,11 +38,19 @@ export default function TodoApp({ filter }: { filter: Filter }) {
     if (loaded) saveTodos(todos);
   }, [todos, loaded]);
 
+  useEffect(() => {
+    if (lastRemoved.length === 0) return;
+    const timer = setTimeout(() => setLastRemoved([]), UNDO_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, [lastRemoved]);
+
   function addTodo(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key !== ENTER_KEY) return;
     const title = newTitle.trim();
     if (!title) return;
-    setTodos([...todos, { id: nextId(todos), title, completed: false }]);
+    // Count undoable todos too, so a restored todo never shares an id with a new one.
+    const id = nextId([...todos, ...lastRemoved.map((removed) => removed.todo)]);
+    setTodos([...todos, { id, title, completed: false }]);
     setNewTitle("");
   }
 
@@ -40,8 +62,20 @@ export default function TodoApp({ filter }: { filter: Filter }) {
     setTodos(todos.map((todo) => ({ ...todo, completed })));
   }
 
+  function remove(shouldRemove: (todo: Todo) => boolean) {
+    const { kept, removed } = removeTodos(todos, shouldRemove);
+    if (removed.length === 0) return;
+    setTodos(kept);
+    setLastRemoved(removed);
+  }
+
   function destroy(id: number) {
-    setTodos(todos.filter((todo) => todo.id !== id));
+    remove((todo) => todo.id === id);
+  }
+
+  function undo() {
+    setTodos(restoreTodos(todos, lastRemoved));
+    setLastRemoved([]);
   }
 
   function save(id: number, title: string) {
@@ -55,7 +89,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   }
 
   function clearCompleted() {
-    setTodos(todos.filter((todo) => !todo.completed));
+    remove((todo) => todo.completed);
   }
 
   const shown = filterTodos(todos, filter);
@@ -132,6 +166,19 @@ export default function TodoApp({ filter }: { filter: Filter }) {
           </footer>
         )}
       </section>
+      {lastRemoved.length > 0 && (
+        <div className="undo-bar" role="status" style={undoBarStyle}>
+          <span>
+            Deleted{" "}
+            {lastRemoved.length === 1
+              ? `"${lastRemoved[0].todo.title}"`
+              : `${lastRemoved.length} ${pluralize(lastRemoved.length, "todo")}`}
+          </span>
+          <button className="undo" onClick={undo} style={undoButtonStyle}>
+            Undo
+          </button>
+        </div>
+      )}
       <footer className="info">
         <p>Double-click to edit a todo</p>
         <p>
@@ -141,3 +188,23 @@ export default function TodoApp({ filter }: { filter: Filter }) {
     </>
   );
 }
+
+const undoBarStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 16,
+  margin: "0 0 40px",
+  padding: "12px 15px",
+  background: "#333",
+  color: "#fff",
+  fontSize: 15,
+  boxShadow: "0 2px 4px 0 rgba(0, 0, 0, 0.2)",
+};
+
+const undoButtonStyle: React.CSSProperties = {
+  color: "#f0c040",
+  fontWeight: "bold",
+  textTransform: "uppercase",
+  cursor: "pointer",
+};
