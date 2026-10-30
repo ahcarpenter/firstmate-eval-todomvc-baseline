@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, nextId, pluralize, type Todo } from "./todos";
+import {
+  LEGACY_STORAGE_KEY,
+  STORAGE_KEY,
+  filterTodos,
+  listPath,
+  nextId,
+  pluralize,
+  readLists,
+  type Todo,
+  type TodoList,
+} from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -13,6 +23,10 @@ describe("nextId", () => {
 
   it("follows the existing todos", () => {
     expect(nextId(todos)).toBe(3);
+  });
+
+  it("does not reuse an id after a deletion", () => {
+    expect(nextId([todos[1]])).toBe(3);
   });
 });
 
@@ -38,5 +52,47 @@ describe("filterTodos", () => {
 
   it("returns only completed todos", () => {
     expect(filterTodos(todos, "completed").map((todo) => todo.id)).toEqual([2]);
+  });
+});
+
+describe("listPath", () => {
+  it("leaves the filter out for all", () => {
+    expect(listPath(2)).toBe("/lists/2");
+  });
+
+  it("appends other filters", () => {
+    expect(listPath(2, "active")).toBe("/lists/2/active");
+    expect(listPath(2, "completed")).toBe("/lists/2/completed");
+  });
+});
+
+describe("readLists", () => {
+  const storage = (items: Record<string, string>) => ({ getItem: (key: string) => items[key] ?? null });
+
+  it("returns the stored lists", () => {
+    const lists: TodoList[] = [{ id: 4, name: "Work", todos }];
+    expect(readLists(storage({ [STORAGE_KEY]: JSON.stringify(lists) }))).toEqual(lists);
+  });
+
+  it("turns todos saved before lists into a list called Todos", () => {
+    expect(readLists(storage({ [LEGACY_STORAGE_KEY]: JSON.stringify(todos) }))).toEqual([
+      { id: 1, name: "Todos", todos },
+    ]);
+  });
+
+  it("prefers the stored lists over the legacy todos", () => {
+    const lists: TodoList[] = [{ id: 1, name: "Todos", todos: [] }];
+    const items = { [STORAGE_KEY]: JSON.stringify(lists), [LEGACY_STORAGE_KEY]: JSON.stringify(todos) };
+    expect(readLists(storage(items))).toEqual(lists);
+  });
+
+  it("starts with an empty Todos list", () => {
+    expect(readLists(storage({}))).toEqual([{ id: 1, name: "Todos", todos: [] }]);
+  });
+
+  it("ignores unreadable storage", () => {
+    expect(readLists(storage({ [STORAGE_KEY]: "{", [LEGACY_STORAGE_KEY]: "nope" }))).toEqual([
+      { id: 1, name: "Todos", todos: [] },
+    ]);
   });
 });

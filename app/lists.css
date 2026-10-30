@@ -1,0 +1,45 @@
+.lists {
+  padding-top: 16px;
+  font-size: 14px;
+}
+
+.lists ul {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.lists li {
+  display: inline;
+}
+
+.lists li a {
+  display: inline-block;
+  margin: 0 4px 4px 0;
+  padding: 3px 7px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.lists li a:hover {
+  border-color: #db7676;
+}
+
+.lists li a.selected {
+  border-color: #ce4646;
+}
+
+.lists label {
+  margin-right: 8px;
+}
+
+.lists .new-list {
+  padding: 4px 6px;
+  font: inherit;
+}
+
+.missing-list {
+  padding: 16px;
+}

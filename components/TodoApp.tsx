@@ -1,28 +1,60 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import TodoItem from "@/components/TodoItem";
-import { filterTodos, loadTodos, nextId, pluralize, saveTodos, type Filter, type Todo } from "@/lib/todos";
+import {
+  filterTodos,
+  listPath,
+  loadLists,
+  nextId,
+  pluralize,
+  saveLists,
+  type Filter,
+  type Todo,
+  type TodoList,
+} from "@/lib/todos";
 
 const ENTER_KEY = "Enter";
 
-export default function TodoApp({ filter }: { filter: Filter }) {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [loaded, setLoaded] = useState(false);
+export default function TodoApp({ listId, filter }: { listId: string; filter: Filter }) {
+  const router = useRouter();
+  const [lists, setLists] = useState<TodoList[] | null>(null);
+  const [newListName, setNewListName] = useState("");
   const [newTitle, setNewTitle] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
 
   useEffect(() => {
     // Read storage after mount so the server render and the first client render match.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTodos(loadTodos());
-    setLoaded(true);
+    setLists(loadLists());
   }, []);
 
-  useEffect(() => {
-    if (loaded) saveTodos(todos);
-  }, [todos, loaded]);
+  const list = lists?.find((candidate) => String(candidate.id) === listId);
+  const todos = list?.todos ?? [];
+
+  // Save on every change rather than in an effect, so a list created just before
+  // navigating to it is already stored when the next page reads storage.
+  function commitLists(next: TodoList[]) {
+    setLists(next);
+    saveLists(next);
+  }
+
+  function setTodos(next: Todo[]) {
+    if (!lists || !list) return;
+    commitLists(lists.map((candidate) => (candidate.id === list.id ? { ...candidate, todos: next } : candidate)));
+  }
+
+  function addList(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key !== ENTER_KEY || !lists) return;
+    const name = newListName.trim();
+    if (!name) return;
+    const created = { id: nextId(lists), name, todos: [] };
+    commitLists([...lists, created]);
+    setNewListName("");
+    router.push(listPath(created.id));
+  }
 
   function addTodo(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key !== ENTER_KEY) return;
@@ -62,8 +94,46 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   const activeCount = todos.filter((todo) => !todo.completed).length;
   const completedCount = todos.length - activeCount;
 
+  const listsNav = lists && (
+    <nav className="lists" aria-label="Lists">
+      <ul>
+        {lists.map((candidate) => (
+          <li key={candidate.id}>
+            <Link
+              href={listPath(candidate.id)}
+              className={candidate === list ? "selected" : undefined}
+              aria-current={candidate === list ? "page" : undefined}
+            >
+              {candidate.name}
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <label htmlFor="new-list">New list name</label>
+      <input
+        id="new-list"
+        className="new-list"
+        value={newListName}
+        onChange={(event) => setNewListName(event.target.value)}
+        onKeyDown={addList}
+      />
+    </nav>
+  );
+
+  if (lists && !list) {
+    return (
+      <>
+        {listsNav}
+        <section className="todoapp">
+          <p className="missing-list">This list does not exist.</p>
+        </section>
+      </>
+    );
+  }
+
   return (
     <>
+      {listsNav}
       <section className="todoapp">
         <header className="header">
           <h1>todos</h1>
@@ -109,17 +179,17 @@ export default function TodoApp({ filter }: { filter: Filter }) {
             </span>
             <ul className="filters">
               <li>
-                <Link href="/" className={filter === "all" ? "selected" : undefined}>
+                <Link href={listPath(listId)} className={filter === "all" ? "selected" : undefined}>
                   All
                 </Link>
               </li>
               <li>
-                <Link href="/active" className={filter === "active" ? "selected" : undefined}>
+                <Link href={listPath(listId, "active")} className={filter === "active" ? "selected" : undefined}>
                   Active
                 </Link>
               </li>
               <li>
-                <Link href="/completed" className={filter === "completed" ? "selected" : undefined}>
+                <Link href={listPath(listId, "completed")} className={filter === "completed" ? "selected" : undefined}>
                   Completed
                 </Link>
               </li>
