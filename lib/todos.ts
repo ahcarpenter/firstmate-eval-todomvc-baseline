@@ -11,7 +11,21 @@ export const FILTERS: Filter[] = ["all", "active", "completed"];
 export const STORAGE_KEY = "todos-nextjs";
 
 export function nextId(todos: Todo[]): number {
-  return todos.length + 1;
+  // Use the highest id, not the count: after a delete the count would reuse a live id.
+  return todos.reduce((max, todo) => Math.max(max, todo.id), 0) + 1;
+}
+
+// Earlier builds could save duplicate ids; give every repeat a fresh one so each todo is distinct.
+export function dedupeIds(todos: Todo[]): Todo[] {
+  const seen = new Set<number>();
+  let next = nextId(todos);
+  return todos.map((todo) => {
+    if (!seen.has(todo.id)) {
+      seen.add(todo.id);
+      return todo;
+    }
+    return { ...todo, id: next++ };
+  });
 }
 
 export function pluralize(count: number, word: string): string {
@@ -27,7 +41,7 @@ export function filterTodos(todos: Todo[], filter: Filter): Todo[] {
 export function loadTodos(): Todo[] {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Todo[]) : [];
+    return raw ? dedupeIds(JSON.parse(raw) as Todo[]) : [];
   } catch {
     return [];
   }
