@@ -18,6 +18,16 @@ export function pluralize(count: number, word: string): string {
   return count === 1 ? word : `${word}s`;
 }
 
+// Titles match ignoring case and runs of whitespace, so "Buy  Milk" duplicates "buy milk".
+function normalizeTitle(title: string): string {
+  return title.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+export function findActiveDuplicate(todos: Todo[], title: string): Todo | undefined {
+  const wanted = normalizeTitle(title);
+  return todos.find((todo) => !todo.completed && normalizeTitle(todo.title) === wanted);
+}
+
 export function filterTodos(todos: Todo[], filter: Filter): Todo[] {
   if (filter === "active") return todos.filter((todo) => !todo.completed);
   if (filter === "completed") return todos.filter((todo) => todo.completed);
