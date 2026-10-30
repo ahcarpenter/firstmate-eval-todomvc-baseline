@@ -8,6 +8,7 @@ import {
   isOverdue,
   loadTodos,
   localDay,
+  nextDay,
   nextId,
   pluralize,
   saveTodos,
@@ -68,6 +69,11 @@ export default function TodoApp({ filter }: { filter: Filter }) {
     setEditingId(null);
   }
 
+  function snooze(id: number) {
+    const tomorrow = nextDay(localDay(new Date()));
+    setTodos(todos.map((todo) => (todo.id === id ? { ...todo, due: tomorrow } : todo)));
+  }
+
   function clearCompleted() {
     setTodos(todos.filter((todo) => !todo.completed));
   }
@@ -118,6 +124,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
                   overdue={isOverdue(todo, today)}
                   onToggle={() => toggle(todo.id)}
                   onDestroy={() => destroy(todo.id)}
+                  onSnooze={() => snooze(todo.id)}
                   onEdit={() => setEditingId(todo.id)}
                   onSave={(title) => save(todo.id, title)}
                   onCancel={() => setEditingId(null)}

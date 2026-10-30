@@ -54,6 +54,13 @@ export function localDay(now: Date): string {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
+/** Returns the calendar day after `day` (`YYYY-MM-DD`) as `YYYY-MM-DD`. */
+export function nextDay(day: string): string {
+  const [year, month, date] = day.split("-").map(Number);
+  // Date.UTC rolls an out-of-range day over into the next month or year.
+  return new Date(Date.UTC(year, month - 1, date + 1)).toISOString().slice(0, 10);
+}
+
 /** A todo is overdue when it is not completed and has a valid due date before `today` (`YYYY-MM-DD`). */
 export function isOverdue(todo: Todo, today: string): boolean {
   // Zero-padded `YYYY-MM-DD` strings sort in calendar order, so a string comparison is a date comparison.

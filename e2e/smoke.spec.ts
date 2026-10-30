@@ -63,3 +63,28 @@ test("marks overdue todos, counts them, and filters them at /overdue", async ({ 
   await expect(items).toHaveCount(0);
   await expect(page.locator(".todo-count .overdue-count")).toHaveCount(0);
 });
+
+test("snoozes an overdue todo to tomorrow", async ({ page }) => {
+  await page.clock.setFixedTime(new Date(2026, 9, 31, 12));
+  await page.goto("/");
+  const input = page.getByPlaceholder("What needs to be done?");
+  const due = page.getByLabel("Due date");
+  for (const [title, date] of [
+    ["Pay rent", "2026-10-28"],
+    ["Call mom", "2026-11-03"],
+  ]) {
+    await input.fill(title);
+    await due.fill(date);
+    await input.press("Enter");
+  }
+  const items = page.locator(".todo-list li");
+  await expect(items.nth(1).getByRole("button", { name: "Snooze" })).toHaveCount(0);
+
+  await items.nth(0).getByRole("button", { name: "Snooze" }).click();
+  await expect(items.locator("label")).toHaveText(["Pay rentDue Nov 1", "Call momDue Nov 3"]);
+  await expect(page.getByRole("button", { name: "Snooze" })).toHaveCount(0);
+  await expect(page.locator(".todo-count .overdue-count")).toHaveCount(0);
+
+  await page.reload();
+  await expect(items.nth(0).locator(".due")).toHaveText("Due Nov 1");
+});

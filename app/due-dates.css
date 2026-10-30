@@ -34,6 +34,33 @@
   color: #b83f45;
 }
 
+/* Sit left of the destroy button, which occupies the row's right 50px. */
+.todo-list li .snooze {
+  position: absolute;
+  top: 0;
+  right: 60px;
+  bottom: 0;
+  height: 28px;
+  margin: auto 0;
+  padding: 0 10px;
+  border: 1px solid #e6e6e6;
+  border-radius: 3px;
+  font-size: 14px;
+  color: #777;
+  cursor: pointer;
+}
+
+.todo-list li .snooze:hover,
+.todo-list li .snooze:focus {
+  border-color: #b83f45;
+  color: #b83f45;
+}
+
+/* Keep a long title from running under the snooze button. */
+.todo-list li .view:has(.snooze) label {
+  padding-right: 150px;
+}
+
 .todo-count .overdue-count {
   margin-left: 8px;
   color: #b83f45;

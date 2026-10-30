@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, formatDue, isOverdue, localDay, nextId, pluralize, type Todo } from "./todos";
+import { filterTodos, formatDue, isOverdue, localDay, nextDay, nextId, pluralize, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -82,6 +82,19 @@ describe("localDay", () => {
   it("formats the local calendar day as YYYY-MM-DD", () => {
     expect(localDay(new Date(2026, 0, 5, 23, 59))).toBe("2026-01-05");
     expect(localDay(new Date(2026, 9, 29, 0, 0))).toBe("2026-10-29");
+  });
+});
+
+describe("nextDay", () => {
+  it("returns the following calendar day", () => {
+    expect(nextDay("2026-10-29")).toBe("2026-10-30");
+  });
+
+  it("rolls over month, year, and leap-day boundaries", () => {
+    expect(nextDay("2026-10-31")).toBe("2026-11-01");
+    expect(nextDay("2026-12-31")).toBe("2027-01-01");
+    expect(nextDay("2028-02-28")).toBe("2028-02-29");
+    expect(nextDay("2027-02-28")).toBe("2027-03-01");
   });
 });
 
