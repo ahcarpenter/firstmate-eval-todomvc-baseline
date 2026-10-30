@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dedupeIds, filterTodos, nextId, pluralize, type Todo } from "./todos";
+import { dedupeIds, duplicateTodo, filterTodos, nextId, pluralize, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -36,6 +36,27 @@ describe("dedupeIds", () => {
       { id: 1, title: "C", completed: false },
     ];
     expect(dedupeIds(duplicated).map((todo) => todo.id)).toEqual([2, 3, 1]);
+  });
+});
+
+describe("duplicateTodo", () => {
+  it("inserts an active copy right after the original", () => {
+    const list: Todo[] = [...todos, { id: 3, title: "Read", completed: false }];
+    expect(duplicateTodo(list, 2)).toEqual([
+      todos[0],
+      todos[1],
+      { id: 4, title: "Walk the dog", completed: false },
+      list[2],
+    ]);
+  });
+
+  it("gives every copy its own id", () => {
+    const twice = duplicateTodo(duplicateTodo(todos, 1), 1);
+    expect(new Set(twice.map((todo) => todo.id)).size).toBe(twice.length);
+  });
+
+  it("leaves the list alone for an unknown id", () => {
+    expect(duplicateTodo(todos, 99)).toBe(todos);
   });
 });
 

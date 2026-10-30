@@ -28,6 +28,14 @@ export function dedupeIds(todos: Todo[]): Todo[] {
   });
 }
 
+// Insert an active copy of the todo right after it, with its own id.
+export function duplicateTodo(todos: Todo[], id: number): Todo[] {
+  const index = todos.findIndex((todo) => todo.id === id);
+  if (index === -1) return todos;
+  const copy: Todo = { id: nextId(todos), title: todos[index].title, completed: false };
+  return [...todos.slice(0, index + 1), copy, ...todos.slice(index + 1)];
+}
+
 export function pluralize(count: number, word: string): string {
   return count === 1 ? word : `${word}s`;
 }
