@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TodoItem from "@/components/TodoItem";
 import { filterTodos, loadTodos, nextId, pluralize, saveTodos, type Filter, type Todo } from "@/lib/todos";
 
@@ -12,6 +12,10 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   const [loaded, setLoaded] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
+  const newTodoInput = useRef<HTMLInputElement>(null);
+  const todoList = useRef<HTMLUListElement>(null);
+  // Element to focus after the next render, when the focused control is about to be removed.
+  const pendingFocus = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     // Read storage after mount so the server render and the first client render match.
@@ -23,6 +27,11 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   useEffect(() => {
     if (loaded) saveTodos(todos);
   }, [todos, loaded]);
+
+  useEffect(() => {
+    pendingFocus.current?.focus();
+    pendingFocus.current = null;
+  }, [todos]);
 
   function addTodo(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key !== ENTER_KEY) return;
@@ -41,6 +50,11 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   }
 
   function destroy(id: number) {
+    const item = todoList.current?.querySelector<HTMLElement>(`[data-todo-id="${id}"]`);
+    if (item?.contains(document.activeElement)) {
+      const neighbor = item.nextElementSibling ?? item.previousElementSibling;
+      pendingFocus.current = neighbor?.querySelector<HTMLElement>(".toggle") ?? newTodoInput.current;
+    }
     setTodos(todos.filter((todo) => todo.id !== id));
   }
 
@@ -55,6 +69,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   }
 
   function clearCompleted() {
+    pendingFocus.current = newTodoInput.current;
     setTodos(todos.filter((todo) => !todo.completed));
   }
 
@@ -68,7 +83,9 @@ export default function TodoApp({ filter }: { filter: Filter }) {
         <header className="header">
           <h1>todos</h1>
           <input
+            ref={newTodoInput}
             className="new-todo"
+            aria-label="New todo"
             placeholder="What needs to be done?"
             autoFocus
             value={newTitle}
@@ -86,7 +103,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
               onChange={(event) => toggleAll(event.target.checked)}
             />
             <label htmlFor="toggle-all">Mark all as complete</label>
-            <ul className="todo-list">
+            <ul ref={todoList} className="todo-list">
               {shown.map((todo) => (
                 <TodoItem
                   key={todo.id}
@@ -133,7 +150,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
         )}
       </section>
       <footer className="info">
-        <p>Double-click to edit a todo</p>
+        <p>Double-click or use the Edit button to edit a todo</p>
         <p>
           Part of <a href="https://todomvc.com">TodoMVC</a>
         </p>
