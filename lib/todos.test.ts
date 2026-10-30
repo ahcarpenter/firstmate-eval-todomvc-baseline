@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, nextId, pluralize, type Todo } from "./todos";
+import { dedupeIds, filterTodos, nextId, pluralize, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -13,6 +13,26 @@ describe("nextId", () => {
 
   it("follows the existing todos", () => {
     expect(nextId(todos)).toBe(3);
+  });
+
+  it("does not reuse an id after a todo is deleted", () => {
+    const afterDelete = todos.filter((todo) => todo.id !== 1);
+    expect(nextId(afterDelete)).toBe(3);
+  });
+});
+
+describe("dedupeIds", () => {
+  it("leaves distinct ids alone", () => {
+    expect(dedupeIds(todos)).toEqual(todos);
+  });
+
+  it("renumbers repeated ids so every todo is distinct", () => {
+    const repaired = dedupeIds([
+      { id: 2, title: "Walk the dog", completed: false },
+      { id: 2, title: "Buy milk", completed: false },
+    ]);
+    expect(repaired.map((todo) => todo.id)).toEqual([2, 3]);
+    expect(repaired.map((todo) => todo.title)).toEqual(["Walk the dog", "Buy milk"]);
   });
 });
 
