@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, nextId, pluralize, type Todo } from "./todos";
+import { filterTodos, nextId, pluralize, restoreTodo, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -13,6 +13,10 @@ describe("nextId", () => {
 
   it("follows the existing todos", () => {
     expect(nextId(todos)).toBe(3);
+  });
+
+  it("does not reuse an id after a delete", () => {
+    expect(nextId([todos[1]])).toBe(3);
   });
 });
 
@@ -38,5 +42,24 @@ describe("filterTodos", () => {
 
   it("returns only completed todos", () => {
     expect(filterTodos(todos, "completed").map((todo) => todo.id)).toEqual([2]);
+  });
+});
+
+describe("restoreTodo", () => {
+  const deleted: Todo = { id: 3, title: "Call mum", completed: false };
+
+  it("puts the todo back at its old position", () => {
+    expect(restoreTodo(todos, deleted, 1).map((todo) => todo.id)).toEqual([1, 3, 2]);
+  });
+
+  it("appends when the list has shrunk", () => {
+    expect(restoreTodo([], deleted, 2)).toEqual([deleted]);
+  });
+
+  it("gives the todo a fresh id when its old one was reused", () => {
+    const withReuse = [...todos, { id: 3, title: "New", completed: false }];
+    const restored = restoreTodo(withReuse, deleted, 2);
+    expect(restored.map((todo) => todo.id)).toEqual([1, 2, 4, 3]);
+    expect(restored[2].title).toBe("Call mum");
   });
 });

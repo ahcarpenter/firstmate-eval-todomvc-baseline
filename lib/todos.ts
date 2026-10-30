@@ -10,8 +10,18 @@ export const FILTERS: Filter[] = ["all", "active", "completed"];
 
 export const STORAGE_KEY = "todos-nextjs";
 
+export const UNDO_DELETE_MS = 5000;
+
 export function nextId(todos: Todo[]): number {
-  return todos.length + 1;
+  return todos.reduce((max, todo) => Math.max(max, todo.id), 0) + 1;
+}
+
+// Puts a deleted todo back at its old position. It gets a fresh id if a todo
+// added since the delete has taken its old one.
+export function restoreTodo(todos: Todo[], todo: Todo, index: number): Todo[] {
+  const restored = todos.some((other) => other.id === todo.id) ? { ...todo, id: nextId(todos) } : todo;
+  const at = Math.min(Math.max(index, 0), todos.length);
+  return [...todos.slice(0, at), restored, ...todos.slice(at)];
 }
 
 export function pluralize(count: number, word: string): string {

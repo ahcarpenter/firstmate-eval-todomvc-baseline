@@ -1,0 +1,35 @@
+.undo-toast:empty {
+  display: none;
+}
+
+.undo-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: calc(100vw - 32px);
+  padding: 12px 16px;
+  border-radius: 4px;
+  background: #333;
+  color: #fff;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.undo-toast span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.undo-toast button {
+  flex-shrink: 0;
+  padding: 4px 8px;
+  color: #f5a623;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+}

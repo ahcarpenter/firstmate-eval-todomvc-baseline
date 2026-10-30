@@ -3,15 +3,28 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import TodoItem from "@/components/TodoItem";
-import { filterTodos, loadTodos, nextId, pluralize, saveTodos, type Filter, type Todo } from "@/lib/todos";
+import {
+  UNDO_DELETE_MS,
+  filterTodos,
+  loadTodos,
+  nextId,
+  pluralize,
+  restoreTodo,
+  saveTodos,
+  type Filter,
+  type Todo,
+} from "@/lib/todos";
 
 const ENTER_KEY = "Enter";
+
+type Deleted = { todo: Todo; index: number };
 
 export default function TodoApp({ filter }: { filter: Filter }) {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [deleted, setDeleted] = useState<Deleted | null>(null);
 
   useEffect(() => {
     // Read storage after mount so the server render and the first client render match.
@@ -23,6 +36,13 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   useEffect(() => {
     if (loaded) saveTodos(todos);
   }, [todos, loaded]);
+
+  useEffect(() => {
+    // Each delete starts a fresh undo window; a newer delete replaces the older one.
+    if (!deleted) return;
+    const timer = setTimeout(() => setDeleted(null), UNDO_DELETE_MS);
+    return () => clearTimeout(timer);
+  }, [deleted]);
 
   function addTodo(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key !== ENTER_KEY) return;
@@ -41,7 +61,16 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   }
 
   function destroy(id: number) {
+    const index = todos.findIndex((todo) => todo.id === id);
+    if (index === -1) return;
+    setDeleted({ todo: todos[index], index });
     setTodos(todos.filter((todo) => todo.id !== id));
+  }
+
+  function undoDelete() {
+    if (!deleted) return;
+    setTodos(restoreTodo(todos, deleted.todo, deleted.index));
+    setDeleted(null);
   }
 
   function save(id: number, title: string) {
@@ -132,6 +161,14 @@ export default function TodoApp({ filter }: { filter: Filter }) {
           </footer>
         )}
       </section>
+      <div className="undo-toast" role="status">
+        {deleted && (
+          <>
+            <span>Deleted &ldquo;{deleted.todo.title}&rdquo;</span>
+            <button onClick={undoDelete}>Undo</button>
+          </>
+        )}
+      </div>
       <footer className="info">
         <p>Double-click to edit a todo</p>
         <p>
