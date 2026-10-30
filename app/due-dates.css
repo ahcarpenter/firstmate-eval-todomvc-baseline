@@ -54,10 +54,12 @@
   color: #b83f45;
 }
 
-/* Lay the footer out as a row so the overdue count and the fourth filter never overlap. */
+/* Lay the footer out as a row so the overdue count and the fourth filter never overlap; wrap when it gets full. */
 .footer {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  row-gap: 8px;
   height: auto;
 }
 
@@ -83,6 +85,18 @@
   gap: 4px;
   margin-right: 8px;
   white-space: nowrap;
+}
+
+.footer .move-overdue {
+  /* Stay positioned above the footer's ::before shadow layer so the button remains clickable. */
+  position: relative;
+  margin-right: 8px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.footer .move-overdue:hover {
+  text-decoration: underline;
 }
 
 .main .search {

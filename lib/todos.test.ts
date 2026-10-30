@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, formatDue, isOverdue, localDay, nextId, pluralize, searchTodos, sortByDue, type Todo } from "./todos";
+import { filterTodos, formatDue, isOverdue, localDay, moveOverdueToToday, nextId, pluralize, searchTodos, sortByDue, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -100,6 +100,30 @@ describe("isOverdue", () => {
     expect(isOverdue(todo(""), today)).toBe(false);
     expect(isOverdue(todo("2026-02-31"), today)).toBe(false);
     expect(isOverdue(todo("Oct 1"), today)).toBe(false);
+  });
+});
+
+describe("moveOverdueToToday", () => {
+  const today = "2026-10-29";
+
+  it("moves only overdue todos to today", () => {
+    const list: Todo[] = [
+      { id: 1, title: "Pay rent", completed: false, due: "2026-10-28" },
+      { id: 2, title: "File taxes", completed: true, due: "2026-10-01" },
+      { id: 3, title: "Call mom", completed: false, due: "2026-11-03" },
+      { id: 4, title: "Buy milk", completed: false },
+      { id: 5, title: "Walk the dog", completed: false, due: "2026-02-31" },
+    ];
+    expect(moveOverdueToToday(list, today)).toEqual([
+      { id: 1, title: "Pay rent", completed: false, due: "2026-10-29" },
+      ...list.slice(1),
+    ]);
+  });
+
+  it("does not change the given list", () => {
+    const list: Todo[] = [{ id: 1, title: "Pay rent", completed: false, due: "2026-10-28" }];
+    moveOverdueToToday(list, today);
+    expect(list[0].due).toBe("2026-10-28");
   });
 });
 

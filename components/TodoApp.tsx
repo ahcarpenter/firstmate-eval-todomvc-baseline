@@ -9,6 +9,7 @@ import {
   loadSortByDue,
   loadTodos,
   localDay,
+  moveOverdueToToday,
   nextId,
   pluralize,
   saveSortByDue,
@@ -83,6 +84,10 @@ export default function TodoApp({ filter }: { filter: Filter }) {
 
   function clearCompleted() {
     setTodos(todos.filter((todo) => !todo.completed));
+  }
+
+  function moveOverdue() {
+    setTodos(moveOverdueToToday(todos, today));
   }
 
   // Todos load only after mount, so reading the clock here cannot cause a hydration mismatch.
@@ -173,6 +178,11 @@ export default function TodoApp({ filter }: { filter: Filter }) {
                 </Link>
               </li>
             </ul>
+            {overdueCount > 0 && (
+              <button className="move-overdue" onClick={moveOverdue}>
+                Move overdue to today
+              </button>
+            )}
             <label className="sort-by-due">
               <input type="checkbox" checked={sortByDue} onChange={(event) => setSortByDue(event.target.checked)} />
               Sort by date

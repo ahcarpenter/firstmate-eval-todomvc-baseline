@@ -92,6 +92,11 @@ export function isOverdue(todo: Todo, today: string): boolean {
   return todo.due < today;
 }
 
+/** Moves every overdue todo's due date to `today` (`YYYY-MM-DD`), leaving the other todos as they are. */
+export function moveOverdueToToday(todos: Todo[], today: string): Todo[] {
+  return todos.map((todo) => (isOverdue(todo, today) ? { ...todo, due: today } : todo));
+}
+
 export function loadTodos(): Todo[] {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
