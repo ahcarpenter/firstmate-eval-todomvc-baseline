@@ -1,0 +1,11 @@
+/* Kept in the DOM while empty so screen readers announce it when text appears. */
+.duplicate-notice {
+  margin: 0;
+  font-size: 16px;
+  color: #b83f45;
+  background: rgba(0, 0, 0, 0.003);
+}
+
+.duplicate-notice:not(:empty) {
+  padding: 8px 16px 8px 60px;
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, nextId, pluralize, type Todo } from "./todos";
+import { filterTodos, findActiveDuplicate, nextId, pluralize, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -38,5 +38,23 @@ describe("filterTodos", () => {
 
   it("returns only completed todos", () => {
     expect(filterTodos(todos, "completed").map((todo) => todo.id)).toEqual([2]);
+  });
+});
+
+describe("findActiveDuplicate", () => {
+  it("finds an active todo with the same title", () => {
+    expect(findActiveDuplicate(todos, "Buy milk")?.id).toBe(1);
+  });
+
+  it("ignores case and extra whitespace", () => {
+    expect(findActiveDuplicate(todos, "  buy   MILK ")?.id).toBe(1);
+  });
+
+  it("ignores completed todos", () => {
+    expect(findActiveDuplicate(todos, "Walk the dog")).toBeUndefined();
+  });
+
+  it("returns undefined for a new title", () => {
+    expect(findActiveDuplicate(todos, "Call mom")).toBeUndefined();
   });
 });

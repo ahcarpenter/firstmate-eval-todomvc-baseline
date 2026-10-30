@@ -24,6 +24,16 @@ export function filterTodos(todos: Todo[], filter: Filter): Todo[] {
   return todos;
 }
 
+function normalizeTitle(title: string): string {
+  return title.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+// Titles match ignoring case and surrounding or repeated whitespace.
+export function findActiveDuplicate(todos: Todo[], title: string): Todo | undefined {
+  const wanted = normalizeTitle(title);
+  return todos.find((todo) => !todo.completed && normalizeTitle(todo.title) === wanted);
+}
+
 export function loadTodos(): Todo[] {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
