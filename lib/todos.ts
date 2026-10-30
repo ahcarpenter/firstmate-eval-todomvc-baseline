@@ -32,6 +32,16 @@ export function restoreTodo(todos: Todo[], { todo, index }: DeletedTodo): Todo[]
   return [...todos.slice(0, at), todo, ...todos.slice(at)];
 }
 
+export function removeCompleted(todos: Todo[]): { todos: Todo[]; deleted: DeletedTodo[] } {
+  const deleted = todos.flatMap((todo, index) => (todo.completed ? [{ todo, index }] : []));
+  return { todos: todos.filter((todo) => !todo.completed), deleted };
+}
+
+// Expects ascending indexes, so each todo lands in the position it was removed from.
+export function restoreTodos(todos: Todo[], deleted: DeletedTodo[]): Todo[] {
+  return deleted.reduce((restored, entry) => restoreTodo(restored, entry), todos);
+}
+
 export function pluralize(count: number, word: string): string {
   return count === 1 ? word : `${word}s`;
 }

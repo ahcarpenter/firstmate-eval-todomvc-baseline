@@ -1,14 +1,22 @@
 "use client";
 
+import { pluralize, type Todo } from "@/lib/todos";
+
 type Props = {
-  title: string;
+  todos: Todo[];
   onUndo: () => void;
 };
 
-export default function UndoDelete({ title, onUndo }: Props) {
+export default function UndoDelete({ todos, onUndo }: Props) {
   return (
     <div className="undo-delete" role="status" style={styles.bar}>
-      <span style={styles.message}>Deleted &ldquo;{title}&rdquo;</span>
+      <span style={styles.message}>
+        {todos.length === 1 ? (
+          <>Deleted &ldquo;{todos[0].title}&rdquo;</>
+        ) : (
+          `Deleted ${todos.length} ${pluralize(todos.length, "todo")}`
+        )}
+      </span>
       <button type="button" onClick={onUndo} style={styles.button}>
         Undo
       </button>

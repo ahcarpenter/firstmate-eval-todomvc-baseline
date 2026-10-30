@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, nextId, pluralize, removeTodo, restoreTodo, type Todo } from "./todos";
+import {
+  filterTodos,
+  nextId,
+  pluralize,
+  removeCompleted,
+  removeTodo,
+  restoreTodo,
+  restoreTodos,
+  type Todo,
+} from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -63,5 +72,43 @@ describe("restoreTodo", () => {
 
   it("appends when the list has shrunk past the old position", () => {
     expect(restoreTodo([], { todo: todos[1], index: 1 })).toEqual([todos[1]]);
+  });
+});
+
+describe("removeCompleted", () => {
+  it("removes completed todos and remembers where they were", () => {
+    expect(removeCompleted(todos)).toEqual({ todos: [todos[0]], deleted: [{ todo: todos[1], index: 1 }] });
+  });
+
+  it("leaves the list alone when nothing is completed", () => {
+    expect(removeCompleted([todos[0]])).toEqual({ todos: [todos[0]], deleted: [] });
+  });
+});
+
+describe("restoreTodos", () => {
+  const mixed: Todo[] = [
+    { id: 1, title: "a", completed: true },
+    { id: 2, title: "b", completed: false },
+    { id: 3, title: "c", completed: true },
+    { id: 4, title: "d", completed: true },
+    { id: 5, title: "e", completed: false },
+  ];
+
+  it("puts every todo back where it was", () => {
+    const { todos: rest, deleted } = removeCompleted(mixed);
+    expect(restoreTodos(rest, deleted)).toEqual(mixed);
+  });
+
+  it("restores a fully cleared list", () => {
+    const allDone = mixed.map((todo) => ({ ...todo, completed: true }));
+    const { todos: rest, deleted } = removeCompleted(allDone);
+    expect(rest).toEqual([]);
+    expect(restoreTodos(rest, deleted)).toEqual(allDone);
+  });
+
+  it("keeps todos added since the clear after the restored ones", () => {
+    const { todos: rest, deleted } = removeCompleted(mixed);
+    const added = { id: 6, title: "f", completed: false };
+    expect(restoreTodos([...rest, added], deleted)).toEqual([...mixed, added]);
   });
 });

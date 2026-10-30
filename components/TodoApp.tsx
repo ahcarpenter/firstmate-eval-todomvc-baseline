@@ -9,8 +9,9 @@ import {
   loadTodos,
   nextId,
   pluralize,
+  removeCompleted,
   removeTodo,
-  restoreTodo,
+  restoreTodos,
   saveTodos,
   UNDO_DELETE_MS,
   type DeletedTodo,
@@ -25,7 +26,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   const [loaded, setLoaded] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [deleted, setDeleted] = useState<DeletedTodo | null>(null);
+  const [deleted, setDeleted] = useState<DeletedTodo[]>([]);
 
   useEffect(() => {
     // Read storage after mount so the server render and the first client render match.
@@ -39,8 +40,8 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   }, [todos, loaded]);
 
   useEffect(() => {
-    if (!deleted) return;
-    const timer = setTimeout(() => setDeleted(null), UNDO_DELETE_MS);
+    if (deleted.length === 0) return;
+    const timer = setTimeout(() => setDeleted([]), UNDO_DELETE_MS);
     return () => clearTimeout(timer);
   }, [deleted]);
 
@@ -48,8 +49,8 @@ export default function TodoApp({ filter }: { filter: Filter }) {
     if (event.key !== ENTER_KEY) return;
     const title = newTitle.trim();
     if (!title) return;
-    // Count the todo awaiting undo so restoring it cannot duplicate an id.
-    const id = nextId(deleted ? [...todos, deleted.todo] : todos);
+    // Count the todos awaiting undo so restoring them cannot duplicate an id.
+    const id = nextId([...todos, ...deleted.map((entry) => entry.todo)]);
     setTodos([...todos, { id, title, completed: false }]);
     setNewTitle("");
   }
@@ -65,13 +66,12 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   function destroy(id: number) {
     const result = removeTodo(todos, id);
     setTodos(result.todos);
-    setDeleted(result.deleted);
+    setDeleted(result.deleted ? [result.deleted] : []);
   }
 
   function undoDelete() {
-    if (!deleted) return;
-    setTodos(restoreTodo(todos, deleted));
-    setDeleted(null);
+    setTodos(restoreTodos(todos, deleted));
+    setDeleted([]);
   }
 
   function save(id: number, title: string) {
@@ -85,7 +85,9 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   }
 
   function clearCompleted() {
-    setTodos(todos.filter((todo) => !todo.completed));
+    const result = removeCompleted(todos);
+    setTodos(result.todos);
+    setDeleted(result.deleted);
   }
 
   const shown = filterTodos(todos, filter);
@@ -162,7 +164,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
           </footer>
         )}
       </section>
-      {deleted && <UndoDelete title={deleted.todo.title} onUndo={undoDelete} />}
+      {deleted.length > 0 && <UndoDelete todos={deleted.map((entry) => entry.todo)} onUndo={undoDelete} />}
       <footer className="info">
         <p>Double-click to edit a todo</p>
         <p>
