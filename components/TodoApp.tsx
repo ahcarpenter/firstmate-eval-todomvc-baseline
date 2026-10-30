@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import TodoItem from "@/components/TodoItem";
-import { filterTodos, isOverdue, loadTodos, localDate, nextId, pluralize, saveTodos, type Filter, type Todo } from "@/lib/todos";
+import { filterTodos, isOverdue, loadTodos, localDate, nextDay, nextId, pluralize, saveTodos, type Filter, type Todo } from "@/lib/todos";
 
 const ENTER_KEY = "Enter";
 
@@ -56,6 +56,12 @@ export default function TodoApp({ filter }: { filter: Filter }) {
       setTodos(todos.map((todo) => (todo.id === id ? { ...todo, title: trimmed } : todo)));
     }
     setEditingId(null);
+  }
+
+  function snooze(id: number) {
+    // Read the clock here: a page left open overnight renders a stale today.
+    const dueDate = nextDay(localDate(new Date()));
+    setTodos(todos.map((todo) => (todo.id === id ? { ...todo, dueDate } : todo)));
   }
 
   function clearCompleted() {
@@ -111,6 +117,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
                   overdue={isOverdue(todo, today)}
                   editing={editingId === todo.id}
                   onToggle={() => toggle(todo.id)}
+                  onSnooze={() => snooze(todo.id)}
                   onDestroy={() => destroy(todo.id)}
                   onEdit={() => setEditingId(todo.id)}
                   onSave={(title) => save(todo.id, title)}

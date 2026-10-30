@@ -36,6 +36,12 @@ export function localDate(now: Date): string {
   return `${now.getFullYear()}-${month}-${day}`;
 }
 
+// The calendar day after a YYYY-MM-DD date. Date rolls months and years over.
+export function nextDay(date: string): string {
+  const [year, month, day] = date.split("-").map(Number);
+  return localDate(new Date(year, month - 1, day + 1));
+}
+
 // A todo is overdue when it is not completed and its due date is before today.
 // YYYY-MM-DD strings sort in date order, so a string comparison is enough.
 export function isOverdue(todo: Todo, today: string): boolean {

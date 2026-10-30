@@ -41,6 +41,27 @@
   color: #b83f45;
 }
 
+/* The stock destroy button takes the row's right edge, so the snooze button
+   sits just left of it and the label keeps its text clear of both. */
+.todo-list li .view:has(.snooze) label {
+  padding-right: 130px;
+}
+
+.todo-list li .snooze {
+  position: absolute;
+  top: 0;
+  right: 56px;
+  bottom: 0;
+  height: 28px;
+  margin: auto 0;
+  padding: 0 8px;
+  font-size: 14px;
+  color: #b83f45;
+  border: 1px solid #b83f45;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
 /* With a fourth filter and the overdue count, the stock absolutely centered
    filters overlap the counts, so lay the footer out as one flex row. The
    filters stay positioned so they paint above the footer's :before shadow

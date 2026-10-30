@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, formatDueDate, isOverdue, localDate, nextId, pluralize, type Todo } from "./todos";
+import { filterTodos, formatDueDate, isOverdue, localDate, nextDay, nextId, pluralize, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -85,5 +85,21 @@ describe("localDate", () => {
   it("formats the local calendar date with padding", () => {
     expect(localDate(new Date(2026, 0, 5, 23, 59))).toBe("2026-01-05");
     expect(localDate(new Date(2026, 11, 31, 0, 0))).toBe("2026-12-31");
+  });
+});
+
+describe("nextDay", () => {
+  it("moves to the following day", () => {
+    expect(nextDay("2026-10-29")).toBe("2026-10-30");
+  });
+
+  it("rolls over month and year ends", () => {
+    expect(nextDay("2026-10-31")).toBe("2026-11-01");
+    expect(nextDay("2026-12-31")).toBe("2027-01-01");
+  });
+
+  it("handles leap years", () => {
+    expect(nextDay("2028-02-28")).toBe("2028-02-29");
+    expect(nextDay("2026-02-28")).toBe("2026-03-01");
   });
 });
