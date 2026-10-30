@@ -13,3 +13,26 @@
 .completed-count strong {
   font-weight: 300;
 }
+
+/* The progress bar sits between the header and the list, so it never covers the toggle-all control. */
+.progress {
+  position: relative;
+  height: 24px;
+  background: #f5f5f5;
+  border-top: 1px solid #e6e6e6;
+}
+
+.progress-bar {
+  height: 100%;
+  background: #b7e4c7;
+  transition: width 0.2s ease-out;
+}
+
+.progress-label {
+  position: absolute;
+  inset: 0;
+  line-height: 24px;
+  text-align: center;
+  font-size: 14px;
+  color: #4d4d4d;
+}
