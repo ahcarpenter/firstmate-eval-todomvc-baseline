@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import TodoItem from "@/components/TodoItem";
-import { filterTodos, loadTodos, nextId, pluralize, saveTodos, type Filter, type Todo } from "@/lib/todos";
+import { duplicateTodo, filterTodos, loadTodos, nextId, pluralize, saveTodos, type Filter, type Todo } from "@/lib/todos";
 
 const ENTER_KEY = "Enter";
 
@@ -42,6 +42,10 @@ export default function TodoApp({ filter }: { filter: Filter }) {
 
   function destroy(id: number) {
     setTodos(todos.filter((todo) => todo.id !== id));
+  }
+
+  function duplicate(id: number) {
+    setTodos(duplicateTodo(todos, id));
   }
 
   function save(id: number, title: string) {
@@ -94,6 +98,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
                   editing={editingId === todo.id}
                   onToggle={() => toggle(todo.id)}
                   onDestroy={() => destroy(todo.id)}
+                  onDuplicate={() => duplicate(todo.id)}
                   onEdit={() => setEditingId(todo.id)}
                   onSave={(title) => save(todo.id, title)}
                   onCancel={() => setEditingId(null)}

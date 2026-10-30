@@ -1,0 +1,35 @@
+/* Duplicate button: sits just left of the delete button and shows on hover like it. */
+.todo-list li .duplicate {
+  display: none;
+  position: absolute;
+  top: 0;
+  right: 50px;
+  bottom: 0;
+  width: 40px;
+  height: 40px;
+  margin: auto 0;
+  font-size: 24px;
+  color: #949494;
+  transition: color 0.2s ease-out;
+}
+
+.todo-list li .duplicate:hover,
+.todo-list li .duplicate:focus {
+  color: #4d4d4d;
+}
+
+.todo-list li .duplicate:after {
+  content: "⧉";
+  display: block;
+  height: 100%;
+  line-height: 40px;
+}
+
+.todo-list li:hover .duplicate {
+  display: block;
+}
+
+/* Keep long titles clear of both buttons. */
+.todo-list li .view label {
+  padding-right: 100px;
+}

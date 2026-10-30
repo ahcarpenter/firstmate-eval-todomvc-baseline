@@ -8,12 +8,13 @@ type Props = {
   editing: boolean;
   onToggle: () => void;
   onDestroy: () => void;
+  onDuplicate: () => void;
   onEdit: () => void;
   onSave: (title: string) => void;
   onCancel: () => void;
 };
 
-export default function TodoItem({ todo, editing, onToggle, onDestroy, onEdit, onSave, onCancel }: Props) {
+export default function TodoItem({ todo, editing, onToggle, onDestroy, onDuplicate, onEdit, onSave, onCancel }: Props) {
   const [editText, setEditText] = useState(todo.title);
 
   function startEditing() {
@@ -37,6 +38,7 @@ export default function TodoItem({ todo, editing, onToggle, onDestroy, onEdit, o
       <div className="view">
         <input className="toggle" type="checkbox" checked={todo.completed} onChange={onToggle} />
         <label onDoubleClick={startEditing}>{todo.title}</label>
+        <button className="duplicate" aria-label="Duplicate" title="Duplicate" onClick={onDuplicate} />
         <button className="destroy" onClick={onDestroy} />
       </div>
       {editing && (
