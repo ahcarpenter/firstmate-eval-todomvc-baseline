@@ -10,25 +10,33 @@ type Props = {
   onToggle: () => void;
   onDestroy: () => void;
   onEdit: () => void;
-  onSave: (title: string) => void;
+  onSave: (title: string, dueDate: string) => void;
   onCancel: () => void;
 };
 
 export default function TodoItem({ todo, overdue, editing, onToggle, onDestroy, onEdit, onSave, onCancel }: Props) {
   const [editText, setEditText] = useState(todo.title);
+  const [editDueDate, setEditDueDate] = useState(todo.dueDate ?? "");
 
   function startEditing() {
     setEditText(todo.title);
+    setEditDueDate(todo.dueDate ?? "");
     onEdit();
   }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Enter") {
-      onSave(editText);
+      onSave(editText, editDueDate);
     } else if (event.key === "Escape") {
       setEditText(todo.title);
+      setEditDueDate(todo.dueDate ?? "");
       onCancel();
     }
+  }
+
+  // Save when focus leaves the edit row, but not when it moves between its fields.
+  function handleBlur(event: React.FocusEvent<HTMLDivElement>) {
+    if (!event.currentTarget.contains(event.relatedTarget)) onSave(editText, editDueDate);
   }
 
   const classes = [todo.completed ? "completed" : "", editing ? "editing" : ""].filter(Boolean).join(" ");
@@ -45,14 +53,24 @@ export default function TodoItem({ todo, overdue, editing, onToggle, onDestroy, 
         <button className="destroy" onClick={onDestroy} />
       </div>
       {editing && (
-        <input
-          className="edit"
-          autoFocus
-          value={editText}
-          onChange={(event) => setEditText(event.target.value)}
-          onBlur={() => onSave(editText)}
-          onKeyDown={handleKeyDown}
-        />
+        <div className="edit-row" onBlur={handleBlur}>
+          <input
+            className="edit"
+            autoFocus
+            value={editText}
+            onChange={(event) => setEditText(event.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+          <label className="edit-due-date">
+            Change date
+            <input
+              type="date"
+              value={editDueDate}
+              onChange={(event) => setEditDueDate(event.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+          </label>
+        </div>
       )}
     </li>
   );

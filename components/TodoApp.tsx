@@ -48,12 +48,19 @@ export default function TodoApp({ filter }: { filter: Filter }) {
     setTodos(todos.filter((todo) => todo.id !== id));
   }
 
-  function save(id: number, title: string) {
+  function save(id: number, title: string, dueDate: string) {
     const trimmed = title.trim();
     if (!trimmed) {
       destroy(id);
     } else {
-      setTodos(todos.map((todo) => (todo.id === id ? { ...todo, title: trimmed } : todo)));
+      setTodos(
+        todos.map((todo) => {
+          if (todo.id !== id) return todo;
+          const saved: Todo = { id: todo.id, title: trimmed, completed: todo.completed };
+          if (dueDate) saved.dueDate = dueDate;
+          return saved;
+        }),
+      );
     }
     setEditingId(null);
   }
@@ -113,7 +120,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
                   onToggle={() => toggle(todo.id)}
                   onDestroy={() => destroy(todo.id)}
                   onEdit={() => setEditingId(todo.id)}
-                  onSave={(title) => save(todo.id, title)}
+                  onSave={(title, dueDate) => save(todo.id, title, dueDate)}
                   onCancel={() => setEditingId(null)}
                 />
               ))}
