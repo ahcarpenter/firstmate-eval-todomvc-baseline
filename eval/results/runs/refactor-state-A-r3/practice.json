@@ -1,0 +1,57 @@
+{
+  "reproduce_first": {
+    "status": "not applicable",
+    "evidence": [],
+    "note": "The ask was a refactor, not a bug fix."
+  },
+  "assumptions_recorded": {
+    "status": "not applicable",
+    "evidence": [],
+    "note": "The ask specified the refactor and required preserving current behavior."
+  },
+  "stack_discovery": {
+    "status": "partly applied",
+    "evidence": [9, 10, 13],
+    "note": "The agent read the README and project test configuration before running checks, but the steps do not show it finding the project's lint, typecheck, and test commands first."
+  },
+  "incremental_slices": {
+    "status": "not applied",
+    "evidence": [11, 12, 16],
+    "note": "The reducer, tests, hook, and UI refactor were written together before the first checks."
+  },
+  "self_review": {
+    "status": "not applied",
+    "evidence": [],
+    "note": "No step shows the agent reviewing its diff or reasoning through the change before reporting done."
+  },
+  "simplification_pass": {
+    "status": "not applied",
+    "evidence": [],
+    "note": "No behavior-preserving cleanup after passing checks is shown."
+  },
+  "test_experiment": {
+    "status": "not applied",
+    "evidence": [13, 14, 16],
+    "note": "The initial test failure came from alias resolution, and no intentional breakage of the implementation or new test failure before the fix is shown."
+  },
+  "docs_where_behavior_changed": {
+    "status": "applied",
+    "evidence": [9, 24],
+    "note": "The README Layout section was updated to describe the new file split."
+  },
+  "scope_kept": {
+    "status": "applied",
+    "evidence": [24],
+    "note": "The summary ties the changes to separating state logic and notes the possible duplicate-ID issue as a follow-up."
+  },
+  "verification_story": {
+    "status": "applied",
+    "evidence": [12, 16, 17, 21, 24],
+    "note": "The done summary reports lint, typecheck, unit tests, smoke test, and a one-off browser check with its outcomes."
+  },
+  "hand_check": {
+    "status": "applied",
+    "evidence": [17, 20, 21, 24],
+    "note": "The agent ran a browser check of the changed todo behavior before reporting done."
+  }
+}

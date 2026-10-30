@@ -1,0 +1,61 @@
+{
+  "commit": "a476555cb1904fbd5ca2e9a38ad5cd5bc676d3df",
+  "task": "multiple-lists",
+  "deps": "reused",
+  "checks": {
+    "lint": "pass",
+    "typecheck": "pass",
+    "unit": "pass",
+    "build": "pass"
+  },
+  "unit_tests": 15,
+  "unit_failed": 0,
+  "e2e": "ran",
+  "regression": {
+    "passed": 19,
+    "total": 19,
+    "failed": []
+  },
+  "hidden": {
+    "passed": 7,
+    "total": 7,
+    "failed": []
+  },
+  "edge": {
+    "passed": 1,
+    "total": 1,
+    "failed": []
+  },
+  "hidden_passed_titles": [
+    "keeps existing todos in a list called Todos",
+    "creates a list from the New list name field and switches to it",
+    "keeps each list's todos separate",
+    "filters each list through its own URLs",
+    "counts items left per list",
+    "keeps lists and their todos across a reload",
+    "the root URL opens the first list"
+  ],
+  "regression_passed_titles": [
+    "focuses the new todo field on load",
+    "hides the main section and footer",
+    "adds todos to the bottom of the list and clears the field",
+    "trims the title and ignores empty input",
+    "marks every todo complete and clears it again",
+    "follows the state of the individual todos",
+    "marks a todo complete and active again",
+    "deletes a todo from its delete button",
+    "double-click opens the edit field with the title and hides the other controls",
+    "saves on Enter and trims the title",
+    "saves on blur",
+    "removes the todo when the title is cleared",
+    "cancels on Escape",
+    "counts active todos with the right plural",
+    "is shown only when something is completed and removes completed todos",
+    "keeps titles and completed state across a reload",
+    "filters active and completed todos through links and the URL",
+    "returns to the previous filter with the back button",
+    "hides a todo from the active view once it is completed"
+  ],
+  "prior": {},
+  "followup": null
+}

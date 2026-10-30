@@ -1,0 +1,338 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "reproduce_first",
+    "assumptions_recorded",
+    "stack_discovery",
+    "incremental_slices",
+    "self_review",
+    "simplification_pass",
+    "test_experiment",
+    "docs_where_behavior_changed",
+    "scope_kept",
+    "verification_story",
+    "hand_check"
+  ],
+  "properties": {
+    "reproduce_first": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidence",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "applied",
+            "partly applied",
+            "not applied",
+            "not applicable"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "assumptions_recorded": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidence",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "applied",
+            "partly applied",
+            "not applied",
+            "not applicable"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "stack_discovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidence",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "applied",
+            "partly applied",
+            "not applied",
+            "not applicable"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "incremental_slices": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidence",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "applied",
+            "partly applied",
+            "not applied",
+            "not applicable"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "self_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidence",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "applied",
+            "partly applied",
+            "not applied",
+            "not applicable"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "simplification_pass": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidence",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "applied",
+            "partly applied",
+            "not applied",
+            "not applicable"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "test_experiment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidence",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "applied",
+            "partly applied",
+            "not applied",
+            "not applicable"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "docs_where_behavior_changed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidence",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "applied",
+            "partly applied",
+            "not applied",
+            "not applicable"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "scope_kept": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidence",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "applied",
+            "partly applied",
+            "not applied",
+            "not applicable"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "verification_story": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidence",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "applied",
+            "partly applied",
+            "not applied",
+            "not applicable"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "hand_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidence",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "applied",
+            "partly applied",
+            "not applied",
+            "not applicable"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

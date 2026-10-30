@@ -1,0 +1,72 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "change_size",
+    "summary_clarity",
+    "verification_story",
+    "follow_ups",
+    "decision_records",
+    "handoff",
+    "code_quality",
+    "tests",
+    "maintainability",
+    "overall",
+    "notes"
+  ],
+  "properties": {
+    "change_size": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "summary_clarity": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "verification_story": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "follow_ups": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "decision_records": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "handoff": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "code_quality": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "tests": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "maintainability": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "overall": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "reproduce_first": {
+    "status": "not applicable",
+    "evidence": [],
+    "note": "This was a feature request, not a bug fix."
+  },
+  "assumptions_recorded": {
+    "status": "not applicable",
+    "evidence": [],
+    "note": "The ask specified the feature; the summary records the choice to hide the count at zero."
+  },
+  "stack_discovery": {
+    "status": "applied",
+    "evidence": [3],
+    "note": "The agent read package.json and README before relying on project checks."
+  },
+  "incremental_slices": {
+    "status": "applied",
+    "evidence": [7, 8, 9, 11],
+    "note": "It added a failing e2e test, implemented the feature, then ran the checks."
+  },
+  "self_review": {
+    "status": "applied",
+    "evidence": [26, 28],
+    "note": "It reviewed the diff before committing and summarized correctness and scope considerations."
+  },
+  "simplification_pass": {
+    "status": "not applied",
+    "evidence": [],
+    "note": "No behavior-preserving cleanup after passing checks, followed by rerunning checks, is shown."
+  },
+  "test_experiment": {
+    "status": "applied",
+    "evidence": [7, 13],
+    "note": "The new test failed before implementation, and a deliberate mutation later caused both e2e tests to fail."
+  },
+  "docs_where_behavior_changed": {
+    "status": "not applicable",
+    "evidence": [28],
+    "note": "The summary says the README did not need updating."
+  },
+  "scope_kept": {
+    "status": "applied",
+    "evidence": [28],
+    "note": "The agent listed unrelated issues as follow-ups and left them untouched."
+  },
+  "verification_story": {
+    "status": "applied",
+    "evidence": [11, 14, 24, 28],
+    "note": "The summary names checks and results, and reports browser screenshots and what they showed."
+  },
+  "hand_check": {
+    "status": "applied",
+    "evidence": [21, 23, 24],
+    "note": "It seeded data and inspected the changed footer in a running browser before reporting done."
+  }
+}

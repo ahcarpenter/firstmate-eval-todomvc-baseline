@@ -1,0 +1,57 @@
+{
+  "reproduce_first": {
+    "status": "not applicable",
+    "evidence": [],
+    "note": "This was a feature request, not a bug fix."
+  },
+  "assumptions_recorded": {
+    "status": "not applicable",
+    "evidence": [],
+    "note": "The ask specified the field, display format, optional behavior, and persistence."
+  },
+  "stack_discovery": {
+    "status": "applied",
+    "evidence": [3, 4],
+    "note": "The agent read the package scripts, README, and project configuration before running checks."
+  },
+  "incremental_slices": {
+    "status": "applied",
+    "evidence": [6, 7, 12, 13, 14],
+    "note": "The agent tested after an initial implementation, inspected the screenshot, adjusted the layout, and inspected it again."
+  },
+  "self_review": {
+    "status": "partly applied",
+    "evidence": [11, 12, 14],
+    "note": "The agent reviewed screenshots and corrected a visible layout issue, but no diff or broader code review is shown."
+  },
+  "simplification_pass": {
+    "status": "not applied",
+    "evidence": [],
+    "note": "No behavior-preserving cleanup after checks passed, followed by rerunning checks, is shown."
+  },
+  "test_experiment": {
+    "status": "not applied",
+    "evidence": [],
+    "note": "Tests were added, but no deliberate failure or pre-fix test failure is shown."
+  },
+  "docs_where_behavior_changed": {
+    "status": "applied",
+    "evidence": [3, 6, 17],
+    "note": "The README was read and the done summary says one line was updated."
+  },
+  "scope_kept": {
+    "status": "applied",
+    "evidence": [17],
+    "note": "The done summary identifies a separate numbering bug and says it was left untouched."
+  },
+  "verification_story": {
+    "status": "applied",
+    "evidence": [17],
+    "note": "The done summary names lint, typecheck, unit tests, end-to-end tests, and a screenshot check."
+  },
+  "hand_check": {
+    "status": "applied",
+    "evidence": [8, 11, 14],
+    "note": "The agent ran the app, captured a screenshot, and inspected it before reporting done."
+  }
+}

@@ -1,0 +1,47 @@
+{
+ "eslint": {
+  "base": {
+   "complexity": 97,
+   "warnings": 0,
+   "errors": 0
+  },
+  "head": {
+   "complexity": 113,
+   "warnings": 0,
+   "errors": 0
+  }
+ },
+ "complexity_added": 16,
+ "lint_warnings_added": 0,
+ "duplication": {
+  "base": {
+   "percentage": 0,
+   "duplicated_lines": 0,
+   "lines": 433
+  },
+  "head": {
+   "percentage": 0,
+   "duplicated_lines": 0,
+   "lines": 490
+  },
+  "percentage_added": 0
+ },
+ "escape_hatches": {
+  "any": 0,
+  "ts-ignore": 0,
+  "ts-expect-error": 0,
+  "ts-nocheck": 0,
+  "eslint-disable": 0,
+  "as-unknown-as": 0
+ },
+ "escape_hatches_total": 0,
+ "changed_line_unit_coverage": {
+  "changed_executable_lines": 33,
+  "covered": 14,
+  "fraction": 0.42424242424242425,
+  "changed_files_without_unit_coverage": 1
+ },
+ "unit_tests_added": 2,
+ "e2e_tests_added": 1,
+ "source_lines_added": 82
+}

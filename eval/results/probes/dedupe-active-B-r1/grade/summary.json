@@ -1,0 +1,70 @@
+{
+  "commit": "329b53ccb8f270e536fff32bfc40f78bdf1cdd0f",
+  "task": "dedupe-active",
+  "deps": "reused",
+  "checks": {
+    "lint": "pass",
+    "typecheck": "pass",
+    "unit": "pass",
+    "build": "pass"
+  },
+  "unit_tests": 12,
+  "unit_failed": 0,
+  "e2e": "ran",
+  "regression": {
+    "passed": 19,
+    "total": 19,
+    "failed": []
+  },
+  "hidden": {
+    "passed": 5,
+    "total": 5,
+    "failed": []
+  },
+  "edge": {
+    "passed": 1,
+    "total": 1,
+    "failed": []
+  },
+  "hidden_passed_titles": [
+    "does not add an exact duplicate of an active todo",
+    "treats surrounding spaces as the same todo",
+    "tells the person the todo is already on the list",
+    "allows adding a todo again once the earlier one is completed",
+    "still adds a different todo after a duplicate attempt"
+  ],
+  "regression_passed_titles": [
+    "focuses the new todo field on load",
+    "hides the main section and footer",
+    "adds todos to the bottom of the list and clears the field",
+    "trims the title and ignores empty input",
+    "marks every todo complete and clears it again",
+    "follows the state of the individual todos",
+    "marks a todo complete and active again",
+    "deletes a todo from its delete button",
+    "double-click opens the edit field with the title and hides the other controls",
+    "saves on Enter and trims the title",
+    "saves on blur",
+    "removes the todo when the title is cleared",
+    "cancels on Escape",
+    "counts active todos with the right plural",
+    "is shown only when something is completed and removes completed todos",
+    "keeps titles and completed state across a reload",
+    "filters active and completed todos through links and the URL",
+    "returns to the previous filter with the back button",
+    "hides a todo from the active view once it is completed"
+  ],
+  "prior": {},
+  "followup": {
+    "passed": 5,
+    "total": 5,
+    "passed_titles": [
+      "refuses renaming a todo to another active todo's title",
+      "says the todo is already on the list",
+      "treats surrounding spaces as the same title",
+      "allows renaming to a completed todo's title",
+      "allows other renames and keeping a todo's own title"
+    ],
+    "failed": []
+  }
+}

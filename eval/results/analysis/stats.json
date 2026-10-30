@@ -1,0 +1,58 @@
+{
+  "tasks_complete": 9,
+  "primary_Q": {
+    "n": 9,
+    "mean": 0.0019481481481481433,
+    "sign_flip_p": 1.0,
+    "wilcoxon_p": 1.0,
+    "positive": 1,
+    "negative": 0
+  },
+  "secondary": {
+    "review_overall": {
+      "n": 9,
+      "mean": -0.2222222222222222,
+      "sign_flip_p": 0.21875,
+      "wilcoxon_p": 0.171875,
+      "positive": 2,
+      "negative": 5,
+      "holm_p": 0.4375
+    },
+    "regression_failures": {
+      "n": 9,
+      "mean": 0.037037037037037035,
+      "sign_flip_p": 1.0,
+      "wilcoxon_p": 1.0,
+      "positive": 1,
+      "negative": 0,
+      "holm_p": 1.0
+    },
+    "log_cost": {
+      "n": 9,
+      "mean": 0.4738564596316148,
+      "sign_flip_p": 0.00390625,
+      "wilcoxon_p": 0.00390625,
+      "positive": 9,
+      "negative": 0,
+      "holm_p": 0.01171875
+    }
+  },
+  "arm_totals": {
+    "A": {
+      "runs": 27,
+      "success": 26,
+      "mean_Q": 0.9980518518518519,
+      "cost_usd": 14.5654678,
+      "tokens": 12719851,
+      "wall_seconds": 4181
+    },
+    "B": {
+      "runs": 27,
+      "success": 27,
+      "mean_Q": 1.0,
+      "cost_usd": 23.394008,
+      "tokens": 26315249,
+      "wall_seconds": 7784
+    }
+  }
+}
