@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { addList, filterTodos, listPath, nextId, parseLists, pluralize, slugify, type Todo } from "./todos";
+import {
+  addList,
+  deleteList,
+  filterTodos,
+  listPath,
+  nextId,
+  parseLists,
+  pluralize,
+  renameList,
+  slugify,
+  type Todo,
+} from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -71,6 +82,29 @@ describe("addList", () => {
   it("keeps ids unique", () => {
     const lists = addList(addList([], "Groceries"), "groceries");
     expect(addList(lists, "Groceries!").map((list) => list.id)).toEqual(["groceries", "groceries-2", "groceries-3"]);
+  });
+});
+
+describe("renameList", () => {
+  it("changes only the name of the matching list", () => {
+    const lists = addList(addList([], "Groceries"), "Work");
+    expect(renameList(lists, "work", "Office")).toEqual([
+      { id: "groceries", name: "Groceries", todos: [] },
+      { id: "work", name: "Office", todos: [] },
+    ]);
+  });
+});
+
+describe("deleteList", () => {
+  it("removes the matching list and its todos", () => {
+    const lists = addList(addList([], "Groceries"), "Work");
+    lists[1].todos = todos;
+    expect(deleteList(lists, "work")).toEqual([{ id: "groceries", name: "Groceries", todos: [] }]);
+  });
+
+  it("keeps the last remaining list", () => {
+    const lists = addList([], "Groceries");
+    expect(deleteList(lists, "groceries")).toEqual(lists);
   });
 });
 

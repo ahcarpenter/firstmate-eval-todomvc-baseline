@@ -61,3 +61,55 @@ test("creates lists, switches between them, and filters within one", async ({ pa
   await page.goto("/");
   await expect(page.locator(".todo-list li")).toHaveText(["Buy milk"]);
 });
+
+test("renames a list with Enter and cancels with Escape", async ({ page }) => {
+  await page.goto("/");
+  await createList(page, "Work");
+
+  await page.getByRole("button", { name: "Rename Work" }).click();
+  const field = page.getByLabel("New name for Work");
+  await expect(field).toBeFocused();
+  await expect(field).toHaveValue("Work");
+  await field.fill("Office");
+  await field.press("Escape");
+  await expect(page.getByRole("link", { name: "Work" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Rename Work" }).click();
+  await page.getByLabel("New name for Work").fill("Office");
+  await page.getByLabel("New name for Work").press("Enter");
+  await expect(page.getByRole("link", { name: "Office" })).toHaveAttribute("href", "/lists/work");
+  await expect(page.getByRole("button", { name: "Rename Office" })).toBeVisible();
+  await expect(page.locator(".list-name")).toHaveText("Office");
+
+  await page.reload();
+  await expect(page.getByRole("link", { name: "Office" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Work" })).toHaveCount(0);
+});
+
+test("deletes lists after confirming and keeps the last one", async ({ page }) => {
+  await page.goto("/");
+  await createList(page, "Work");
+  await addTodo(page, "Write report");
+  await createList(page, "Home");
+
+  page.once("dialog", (dialog) => dialog.dismiss());
+  await page.getByRole("button", { name: "Delete Work" }).click();
+  await expect(page.getByRole("link", { name: "Work" })).toBeVisible();
+
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Delete Work" }).click();
+  await expect(page.getByRole("link", { name: "Work" })).toHaveCount(0);
+  await expect(page).toHaveURL("/lists/home");
+
+  await page.goto("/lists/home");
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Delete Home" }).click();
+  await expect(page).toHaveURL("/lists/todos");
+  await expect(page.locator(".list-name")).toHaveText("Todos");
+  await expect(page.getByRole("button", { name: "Delete Todos" })).toBeDisabled();
+
+  await page.reload();
+  await expect(page.locator(".lists li")).toHaveCount(1);
+  await page.goto("/lists/work");
+  await expect(page.locator(".list-missing")).toBeVisible();
+});

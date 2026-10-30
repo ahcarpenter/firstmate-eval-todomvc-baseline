@@ -7,11 +7,13 @@ import TodoItem from "@/components/TodoItem";
 import {
   FILTERS,
   addList,
+  deleteList,
   filterTodos,
   listPath,
   loadLists,
   nextId,
   pluralize,
+  renameList,
   saveLists,
   type Filter,
   type Todo,
@@ -19,6 +21,7 @@ import {
 } from "@/lib/todos";
 
 const ENTER_KEY = "Enter";
+const ESCAPE_KEY = "Escape";
 
 const FILTER_LABELS: Record<Filter, string> = { all: "All", active: "Active", completed: "Completed" };
 
@@ -30,6 +33,8 @@ export default function TodoApp({ listId, filter }: { listId: string | null; fil
   const [newTitle, setNewTitle] = useState("");
   const [newListName, setNewListName] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [renamingListId, setRenamingListId] = useState<string | null>(null);
+  const [renameText, setRenameText] = useState("");
 
   useEffect(() => {
     // Read storage after mount so the server render and the first client render match.
@@ -60,6 +65,32 @@ export default function TodoApp({ listId, filter }: { listId: string | null; fil
     setLists(next);
     setNewListName("");
     router.push(listPath(next[next.length - 1].id));
+  }
+
+  function startRenaming(target: TodoList) {
+    setRenameText(target.name);
+    setRenamingListId(target.id);
+  }
+
+  function handleRenameKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === ESCAPE_KEY) {
+      setRenamingListId(null);
+      return;
+    }
+    if (event.key !== ENTER_KEY || renamingListId === null) return;
+    const name = renameText.trim();
+    if (name) setLists(renameList(lists, renamingListId, name));
+    setRenamingListId(null);
+  }
+
+  function removeList(target: TodoList) {
+    if (!window.confirm(`Delete the list "${target.name}" and all its todos?`)) return;
+    const next = deleteList(lists, target.id);
+    if (next === lists) return;
+    // Save before navigating so the next page no longer finds the deleted list.
+    saveLists(next);
+    setLists(next);
+    if (target.id === list?.id) router.push(listPath(next[0].id));
   }
 
   function addTodo(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -177,13 +208,38 @@ export default function TodoApp({ listId, filter }: { listId: string | null; fil
         <ul>
           {lists.map((candidate) => (
             <li key={candidate.id}>
-              <Link
-                href={listPath(candidate.id)}
-                className={candidate.id === list?.id ? "selected" : undefined}
-                aria-current={candidate.id === list?.id ? "page" : undefined}
-              >
-                {candidate.name}
-              </Link>
+              {renamingListId === candidate.id ? (
+                <input
+                  className="rename-list"
+                  aria-label={`New name for ${candidate.name}`}
+                  autoFocus
+                  value={renameText}
+                  onChange={(event) => setRenameText(event.target.value)}
+                  onKeyDown={handleRenameKeyDown}
+                  onBlur={() => setRenamingListId(null)}
+                />
+              ) : (
+                <>
+                  <Link
+                    href={listPath(candidate.id)}
+                    className={candidate.id === list?.id ? "selected" : undefined}
+                    aria-current={candidate.id === list?.id ? "page" : undefined}
+                  >
+                    {candidate.name}
+                  </Link>
+                  <button className="list-action" onClick={() => startRenaming(candidate)}>
+                    Rename {candidate.name}
+                  </button>
+                  <button
+                    className="list-action"
+                    onClick={() => removeList(candidate)}
+                    disabled={lists.length <= 1}
+                    title={lists.length <= 1 ? "The last list cannot be deleted" : undefined}
+                  >
+                    Delete {candidate.name}
+                  </button>
+                </>
+              )}
             </li>
           ))}
         </ul>

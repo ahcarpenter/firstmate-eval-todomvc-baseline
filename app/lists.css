@@ -56,3 +56,30 @@
 .lists a.selected {
   border-color: #ce4646;
 }
+
+.lists .list-action {
+  margin-left: 2px;
+  padding: 3px 6px;
+  font-size: 12px;
+  color: #777;
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.lists .list-action:hover:not(:disabled) {
+  color: #4d4d4d;
+  border-color: #999;
+}
+
+.lists .list-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.lists .rename-list {
+  padding: 3px 7px;
+  font-size: 15px;
+  border: 1px solid #999;
+}
