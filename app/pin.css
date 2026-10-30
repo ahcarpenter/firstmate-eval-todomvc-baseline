@@ -1,0 +1,28 @@
+/* Pin button, placed left of the destroy button. */
+.todo-list li .pin {
+  position: absolute;
+  top: 0;
+  right: 55px;
+  bottom: 0;
+  height: 28px;
+  margin: auto 0;
+  padding: 0 8px;
+  font-size: 14px;
+  color: #949494;
+  border: 1px solid #e6e6e6;
+  border-radius: 3px;
+}
+
+.todo-list li .pin:hover,
+.todo-list li .pin:focus {
+  color: #4d4d4d;
+}
+
+.todo-list li.pinned .pin {
+  color: #b83f45;
+  border-color: #b83f45;
+}
+
+.todo-list li label {
+  padding-right: 130px;
+}
