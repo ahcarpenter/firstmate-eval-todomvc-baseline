@@ -1,0 +1,45 @@
+/* Accessibility overrides for todomvc-app-css. */
+
+/* The stock stylesheet hides the item buttons with display: none, which also removes them from the tab order.
+   Keep them focusable and reveal them on hover or when anything in the item has focus. */
+.todo-list li .destroy,
+.todo-list li .edit-button {
+  display: block;
+  opacity: 0;
+}
+
+.todo-list li:hover .destroy,
+.todo-list li:hover .edit-button,
+.todo-list li:focus-within .destroy,
+.todo-list li:focus-within .edit-button {
+  opacity: 1;
+}
+
+.todo-list li label {
+  padding-right: 100px;
+}
+
+.todo-list li .edit-button {
+  position: absolute;
+  top: 0;
+  right: 55px;
+  bottom: 0;
+  width: 40px;
+  height: 40px;
+  margin: auto 0;
+  font-size: 22px;
+  color: #949494;
+  transition: color 0.2s ease-out;
+}
+
+.todo-list li .edit-button:hover,
+.todo-list li .edit-button:focus {
+  color: #484848;
+}
+
+.todo-list li .edit-button:after {
+  content: "✎";
+  display: block;
+  height: 100%;
+  line-height: 40px;
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TodoItem from "@/components/TodoItem";
 import { filterTodos, loadTodos, nextId, pluralize, saveTodos, type Filter, type Todo } from "@/lib/todos";
 
@@ -12,6 +12,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   const [loaded, setLoaded] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
+  const newTodoInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // Read storage after mount so the server render and the first client render match.
@@ -70,6 +71,8 @@ export default function TodoApp({ filter }: { filter: Filter }) {
           <input
             className="new-todo"
             placeholder="What needs to be done?"
+            aria-label="New todo"
+            ref={newTodoInput}
             autoFocus
             value={newTitle}
             onChange={(event) => setNewTitle(event.target.value)}
@@ -93,7 +96,11 @@ export default function TodoApp({ filter }: { filter: Filter }) {
                   todo={todo}
                   editing={editingId === todo.id}
                   onToggle={() => toggle(todo.id)}
-                  onDestroy={() => destroy(todo.id)}
+                  onDestroy={() => {
+                    destroy(todo.id);
+                    // The focused delete button is gone; keep keyboard focus in the app.
+                    newTodoInput.current?.focus();
+                  }}
                   onEdit={() => setEditingId(todo.id)}
                   onSave={(title) => save(todo.id, title)}
                   onCancel={() => setEditingId(null)}
@@ -109,17 +116,17 @@ export default function TodoApp({ filter }: { filter: Filter }) {
             </span>
             <ul className="filters">
               <li>
-                <Link href="/" className={filter === "all" ? "selected" : undefined}>
+                <Link href="/" className={filter === "all" ? "selected" : undefined} aria-current={filter === "all" ? "page" : undefined}>
                   All
                 </Link>
               </li>
               <li>
-                <Link href="/active" className={filter === "active" ? "selected" : undefined}>
+                <Link href="/active" className={filter === "active" ? "selected" : undefined} aria-current={filter === "active" ? "page" : undefined}>
                   Active
                 </Link>
               </li>
               <li>
-                <Link href="/completed" className={filter === "completed" ? "selected" : undefined}>
+                <Link href="/completed" className={filter === "completed" ? "selected" : undefined} aria-current={filter === "completed" ? "page" : undefined}>
                   Completed
                 </Link>
               </li>
@@ -133,7 +140,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
         )}
       </section>
       <footer className="info">
-        <p>Double-click to edit a todo</p>
+        <p>Double-click or use the edit button to edit a todo</p>
         <p>
           Part of <a href="https://todomvc.com">TodoMVC</a>
         </p>
