@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, formatDue, nextId, pluralize, type Todo } from "./todos";
+import { filterTodos, formatDue, isOverdue, nextId, pluralize, todayKey, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -51,5 +51,36 @@ describe("formatDue", () => {
     expect(formatDue("")).toBeNull();
     expect(formatDue("2026-13-01")).toBeNull();
     expect(formatDue("Nov 3")).toBeNull();
+  });
+});
+
+describe("todayKey", () => {
+  it("uses the local calendar date", () => {
+    expect(todayKey(new Date(2026, 9, 30, 23, 59))).toBe("2026-10-30");
+    expect(todayKey(new Date(2027, 0, 5))).toBe("2027-01-05");
+  });
+});
+
+describe("overdue", () => {
+  const today = "2026-10-30";
+  const dated: Todo[] = [
+    { id: 1, title: "Past", completed: false, due: "2026-10-29" },
+    { id: 2, title: "Today", completed: false, due: "2026-10-30" },
+    { id: 3, title: "Future", completed: false, due: "2026-11-03" },
+    { id: 4, title: "Done late", completed: true, due: "2026-10-01" },
+    { id: 5, title: "No date", completed: false },
+    { id: 6, title: "Last year", completed: false, due: "2025-12-31" },
+  ];
+
+  it("is overdue only when not completed and due before today", () => {
+    expect(dated.filter((todo) => isOverdue(todo, today)).map((todo) => todo.id)).toEqual([1, 6]);
+  });
+
+  it("ignores due values that are not dates", () => {
+    expect(isOverdue({ id: 7, title: "Bad", completed: false, due: "2026-13-01" }, "2027-01-01")).toBe(false);
+  });
+
+  it("filters to overdue todos", () => {
+    expect(filterTodos(dated, "overdue", today).map((todo) => todo.id)).toEqual([1, 6]);
   });
 });

@@ -27,3 +27,20 @@
   font-size: 14px;
   color: #777;
 }
+
+.todo-list li .todo-overdue {
+  display: block;
+  margin-top: -10px;
+  padding: 0 15px 12px 60px;
+  font-size: 14px;
+  color: #b83f45;
+}
+
+.todo-list li .todo-due + .todo-overdue {
+  margin-top: -8px;
+}
+
+.todo-count .overdue-count {
+  margin-left: 12px;
+  color: #b83f45;
+}

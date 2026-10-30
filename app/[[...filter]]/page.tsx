@@ -5,7 +5,7 @@ import { FILTERS, type Filter } from "@/lib/todos";
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return [{ filter: [] }, { filter: ["active"] }, { filter: ["completed"] }];
+  return [{ filter: [] }, { filter: ["active"] }, { filter: ["completed"] }, { filter: ["overdue"] }];
 }
 
 export default async function Page({ params }: { params: Promise<{ filter?: string[] }> }) {
