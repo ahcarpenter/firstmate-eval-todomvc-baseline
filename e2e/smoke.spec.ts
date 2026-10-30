@@ -172,3 +172,31 @@ test("sorts by due date within every filter and keeps the choice across reloads"
   await expect(sort).not.toBeChecked();
   await expect.poll(order).toEqual(["Buy milk", "Call mom", "Pay rent", "Walk dog", "File taxes"]);
 });
+
+test("searches titles within the current filter without changing the count", async ({ page }) => {
+  await page.goto("/");
+  const input = page.getByPlaceholder("What needs to be done?");
+  for (const title of ["Buy milk", "Buy bread", "Walk dog"]) {
+    await input.fill(title);
+    await input.press("Enter");
+  }
+  const items = page.locator(".todo-list li");
+  await items.filter({ hasText: "Buy bread" }).locator(".toggle").check();
+  const search = page.getByLabel("Search");
+
+  await search.fill("bUY");
+  await expect(items).toHaveText(["Buy milk", "Buy bread"]);
+  await expect(page.locator(".todo-count")).toHaveText("2 items left");
+
+  await page.getByRole("link", { name: "Active" }).click();
+  await expect(page).toHaveURL(/\/active$/);
+  await search.fill("bUY");
+  await expect(items).toHaveText(["Buy milk"]);
+
+  await search.fill("nothing");
+  await expect(items).toHaveCount(0);
+  await expect(page.locator(".todo-count")).toHaveText("2 items left");
+
+  await search.fill("");
+  await expect(items).toHaveText(["Buy milk", "Walk dog"]);
+});

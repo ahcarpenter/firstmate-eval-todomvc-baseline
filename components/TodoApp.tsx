@@ -13,6 +13,7 @@ import {
   pluralize,
   saveSortByDate,
   saveTodos,
+  searchTodos,
   sortByDueDate,
   type Filter,
   type Todo,
@@ -27,6 +28,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   const [newDueDate, setNewDueDate] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [sortByDate, setSortByDate] = useState(false);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     // Read storage after mount so the server render and the first client render match.
@@ -89,7 +91,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   }
 
   const today = localDate(new Date());
-  const filtered = filterTodos(todos, filter, today);
+  const filtered = searchTodos(filterTodos(todos, filter, today), search);
   const shown = sortByDate ? sortByDueDate(filtered) : filtered;
   const activeCount = todos.filter((todo) => !todo.completed).length;
   const completedCount = todos.length - activeCount;
@@ -130,6 +132,10 @@ export default function TodoApp({ filter }: { filter: Filter }) {
               onChange={(event) => toggleAll(event.target.checked)}
             />
             <label htmlFor="toggle-all">Mark all as complete</label>
+            <label className="search">
+              Search
+              <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} />
+            </label>
             <ul className="todo-list">
               {shown.map((todo) => (
                 <TodoItem

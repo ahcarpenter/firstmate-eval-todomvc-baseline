@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, formatDueDate, isOverdue, localDate, nextId, pluralize, sortByDueDate, type Todo } from "./todos";
+import { filterTodos, formatDueDate, isOverdue, localDate, nextId, pluralize, searchTodos, sortByDueDate, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -119,5 +119,20 @@ describe("localDate", () => {
   it("formats the local calendar date with padding", () => {
     expect(localDate(new Date(2026, 0, 5, 23, 59))).toBe("2026-01-05");
     expect(localDate(new Date(2026, 11, 31, 0, 0))).toBe("2026-12-31");
+  });
+});
+
+describe("searchTodos", () => {
+  it("keeps todos whose title contains the query, ignoring case", () => {
+    expect(searchTodos(todos, "MILK").map((todo) => todo.id)).toEqual([1]);
+    expect(searchTodos(todos, "the d").map((todo) => todo.id)).toEqual([2]);
+  });
+
+  it("keeps everything for an empty query", () => {
+    expect(searchTodos(todos, "")).toHaveLength(2);
+  });
+
+  it("keeps nothing when no title matches", () => {
+    expect(searchTodos(todos, "rent")).toEqual([]);
   });
 });

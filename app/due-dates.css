@@ -99,3 +99,24 @@
 .edit-due-date {
   padding-left: 16px;
 }
+
+/* The search field sits between the header row and the list, styled like the
+   due-date fields. */
+.main .search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px 8px 60px;
+  font-size: 14px;
+  color: #4d4d4d;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.main .search input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  color: inherit;
+  border: 1px solid #e6e6e6;
+  padding: 4px 6px;
+}
