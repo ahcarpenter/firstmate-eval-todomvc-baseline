@@ -29,17 +29,53 @@ test("undoes a delete in place and keeps it after reload", async ({ page }) => {
   await expect(page.locator(".todo-list li")).toHaveText(["Buy milk", "Walk the dog", "Pay rent"]);
 });
 
-test("undoes clearing completed todos", async ({ page }) => {
+async function complete(page: Page, titles: string[]) {
+  for (const title of titles) {
+    await page.locator(".todo-list li").filter({ hasText: title }).locator(".toggle").check();
+  }
+}
+
+test("undoes clearing completed todos in place, still completed", async ({ page }) => {
   await page.goto("/");
-  await addTodos(page, ["Buy milk", "Walk the dog", "Pay rent"]);
-  await page.locator(".todo-list li").filter({ hasText: "Buy milk" }).locator(".toggle").check();
-  await page.locator(".todo-list li").filter({ hasText: "Pay rent" }).locator(".toggle").check();
+  await addTodos(page, ["Buy milk", "Walk the dog", "Pay rent", "Call mom"]);
+  await complete(page, ["Buy milk", "Pay rent"]);
   await page.getByRole("button", { name: "Clear completed" }).click();
-  await expect(page.locator(".todo-list li")).toHaveText(["Walk the dog"]);
+  await expect(page.locator(".todo-list li")).toHaveText(["Walk the dog", "Call mom"]);
   await expect(page.getByRole("status")).toContainText("Deleted 2 todos");
 
   await page.getByRole("button", { name: "Undo" }).click();
-  await expect(page.locator(".todo-list li")).toHaveText(["Buy milk", "Walk the dog", "Pay rent"]);
+  await expect(page.locator(".todo-list li")).toHaveText(["Buy milk", "Walk the dog", "Pay rent", "Call mom"]);
+  await expect(page.locator(".todo-list li.completed")).toHaveText(["Buy milk", "Pay rent"]);
+  await expect(page.locator(".todo-count")).toHaveText("2 items left");
+  await expect(page.getByRole("status")).toHaveCount(0);
+
+  await page.reload();
+  await expect(page.locator(".todo-list li")).toHaveText(["Buy milk", "Walk the dog", "Pay rent", "Call mom"]);
+  await expect(page.locator(".todo-list li.completed")).toHaveText(["Buy milk", "Pay rent"]);
+});
+
+test("undoes clearing when every todo was completed", async ({ page }) => {
+  await page.goto("/");
+  await addTodos(page, ["Buy milk", "Pay rent"]);
+  await complete(page, ["Buy milk", "Pay rent"]);
+  await page.getByRole("button", { name: "Clear completed" }).click();
+  await expect(page.locator(".todo-list li")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Undo" }).click();
+  await expect(page.locator(".todo-list li.completed")).toHaveText(["Buy milk", "Pay rent"]);
+});
+
+test("the undo offer for clearing completed expires after a few seconds", async ({ page }) => {
+  await page.clock.install();
+  await page.goto("/");
+  await addTodos(page, ["Buy milk", "Walk the dog"]);
+  await complete(page, ["Buy milk"]);
+  await page.getByRole("button", { name: "Clear completed" }).click();
+  await expect(page.getByRole("button", { name: "Undo" })).toBeVisible();
+
+  await page.clock.runFor(5500);
+  await expect(page.getByRole("status")).toHaveCount(0);
+  await expect(page.locator(".todo-list li")).toHaveText(["Walk the dog"]);
 });
 
 test("the undo offer expires after a few seconds", async ({ page }) => {

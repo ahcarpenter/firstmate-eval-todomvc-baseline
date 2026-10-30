@@ -62,6 +62,11 @@ describe("removeTodos and restoreTodos", () => {
     expect(restoreTodos(kept, removed)).toEqual(three);
   });
 
+  it("restores cleared completed todos in place and still completed", () => {
+    const { kept, removed } = removeTodos(three, (todo) => todo.completed);
+    expect(restoreTodos(kept, removed)).toEqual(three);
+  });
+
   it("restores after todos added since the delete were appended", () => {
     const { kept, removed } = removeTodos(three, (todo) => todo.id === 3);
     const added = [...kept, { id: 4, title: "Call mom", completed: false }];
