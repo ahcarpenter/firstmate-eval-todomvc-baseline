@@ -26,6 +26,7 @@ test("every todo control has an accessible name", async ({ page }) => {
   await expect(page.getByRole("checkbox", { name: "Mark all as complete" })).toBeAttached();
   await expect(page.getByRole("button", { name: 'Edit "Buy milk"' })).toBeAttached();
   await expect(page.getByRole("button", { name: 'Delete "Buy milk"' })).toBeAttached();
+  await expect(page.getByRole("button", { name: 'Important "Buy milk"' })).toBeAttached();
 });
 
 test("toggles a todo from the keyboard", async ({ page }) => {
@@ -76,6 +77,43 @@ test("Escape cancels an edit and returns focus", async ({ page }) => {
   await page.keyboard.press("Escape");
   await expect(page.locator(".todo-list li label")).toHaveText(["Buy milk", "Walk dog"]);
   await expect(page.getByRole("button", { name: 'Edit "Buy milk"' })).toBeFocused();
+});
+
+test("marks a todo important from the keyboard and keeps the mark across reloads", async ({ page }) => {
+  await tabTo(page, "Buy milk", "Delete");
+  await page.keyboard.press("Tab");
+  const star = page.getByRole("button", { name: 'Important "Buy milk"' });
+  await expect(star).toBeFocused();
+  await expect(star).toHaveAttribute("aria-pressed", "false");
+
+  await page.keyboard.press("Enter");
+  await expect(star).toHaveAttribute("aria-pressed", "true");
+  await expect(star).toBeFocused();
+  await expect(page.getByRole("button", { name: 'Important "Walk dog"' })).toHaveAttribute("aria-pressed", "false");
+
+  await page.reload();
+  await expect(star).toHaveAttribute("aria-pressed", "true");
+
+  await star.focus();
+  await page.keyboard.press("Space");
+  await expect(star).toHaveAttribute("aria-pressed", "false");
+});
+
+test("the important mark survives editing and completing a todo", async ({ page }) => {
+  await page.getByRole("button", { name: 'Important "Buy milk"' }).click();
+  await tabTo(page, "Buy milk", "Edit");
+  await page.keyboard.press("Enter");
+  await page.getByRole("textbox", { name: 'Edit "Buy milk"' }).fill("Buy oat milk");
+  await page.keyboard.press("Enter");
+  await page.getByRole("checkbox", { name: "Buy oat milk" }).check({ force: true });
+  await expect(page.getByRole("button", { name: 'Important "Buy oat milk"' })).toHaveAttribute("aria-pressed", "true");
+});
+
+test("marks only the chosen todo after an earlier todo is deleted", async ({ page }) => {
+  await page.getByRole("button", { name: 'Delete "Buy milk"' }).click({ force: true });
+  await addTodos(page, "Call mum");
+  await page.getByRole("button", { name: 'Important "Call mum"' }).click();
+  await expect(page.getByRole("button", { name: 'Important "Walk dog"' })).toHaveAttribute("aria-pressed", "false");
 });
 
 test("double-click still edits a todo", async ({ page }) => {

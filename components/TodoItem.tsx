@@ -7,13 +7,23 @@ type Props = {
   todo: Todo;
   editing: boolean;
   onToggle: () => void;
+  onToggleImportant: () => void;
   onDestroy: () => void;
   onEdit: () => void;
   onSave: (title: string) => void;
   onCancel: () => void;
 };
 
-export default function TodoItem({ todo, editing, onToggle, onDestroy, onEdit, onSave, onCancel }: Props) {
+export default function TodoItem({
+  todo,
+  editing,
+  onToggle,
+  onToggleImportant,
+  onDestroy,
+  onEdit,
+  onSave,
+  onCancel,
+}: Props) {
   const [editText, setEditText] = useState(todo.title);
   const labelId = useId();
   const editButton = useRef<HTMLButtonElement>(null);
@@ -68,6 +78,12 @@ export default function TodoItem({ todo, editing, onToggle, onDestroy, onEdit, o
         </label>
         <button ref={editButton} className="edit-button" onClick={startEditing} aria-label={`Edit "${todo.title}"`} />
         <button className="destroy" onClick={onDestroy} aria-label={`Delete "${todo.title}"`} />
+        <button
+          className="star"
+          onClick={onToggleImportant}
+          aria-label={`Important "${todo.title}"`}
+          aria-pressed={todo.important}
+        />
       </div>
       {editing && (
         <input

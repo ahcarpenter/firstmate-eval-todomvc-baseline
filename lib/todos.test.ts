@@ -1,9 +1,9 @@
-import { describe, expect, it } from "vitest";
-import { filterTodos, nextId, pluralize, type Todo } from "./todos";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { filterTodos, loadTodos, nextId, pluralize, saveTodos, STORAGE_KEY, type Todo } from "./todos";
 
 const todos: Todo[] = [
-  { id: 1, title: "Buy milk", completed: false },
-  { id: 2, title: "Walk the dog", completed: true },
+  { id: 1, title: "Buy milk", completed: false, important: false },
+  { id: 2, title: "Walk the dog", completed: true, important: true },
 ];
 
 describe("nextId", () => {
@@ -13,6 +13,10 @@ describe("nextId", () => {
 
   it("follows the existing todos", () => {
     expect(nextId(todos)).toBe(3);
+  });
+
+  it("does not reuse an id still in use after an earlier todo is deleted", () => {
+    expect(nextId(todos.slice(1))).toBe(3);
   });
 });
 
@@ -38,5 +42,27 @@ describe("filterTodos", () => {
 
   it("returns only completed todos", () => {
     expect(filterTodos(todos, "completed").map((todo) => todo.id)).toEqual([2]);
+  });
+});
+
+describe("persistence", () => {
+  const storage = new Map<string, string>();
+  vi.stubGlobal("window", {
+    localStorage: {
+      getItem: (key: string) => storage.get(key) ?? null,
+      setItem: (key: string, value: string) => storage.set(key, value),
+    },
+  });
+
+  afterEach(() => storage.clear());
+
+  it("keeps important marks", () => {
+    saveTodos(todos);
+    expect(loadTodos()).toEqual(todos);
+  });
+
+  it("treats todos saved without an important mark as not important", () => {
+    storage.set(STORAGE_KEY, JSON.stringify([{ id: 1, title: "Buy milk", completed: false }]));
+    expect(loadTodos()).toEqual([{ id: 1, title: "Buy milk", completed: false, important: false }]);
   });
 });

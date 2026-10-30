@@ -18,15 +18,20 @@
 	opacity: 1;
 }
 
-/* Leave room for the Edit and Delete buttons so they do not cover the title. */
+/* Leave room for the Edit, Delete, and Important buttons so they do not cover the title. */
 .todo-list li label {
-	padding-right: 100px;
+	padding-right: 145px;
+}
+
+/* The buttons sit in the same left-to-right order as they are tabbed through. */
+.todo-list li .destroy {
+	right: 55px;
 }
 
 .todo-list li .edit-button {
 	position: absolute;
 	top: 0;
-	right: 55px;
+	right: 100px;
 	bottom: 0;
 	width: 40px;
 	height: 40px;
@@ -48,6 +53,40 @@
 	color: #4d4d4d;
 }
 
+/* Always visible, unlike Edit and Delete, so the star shows which todos are important. */
+.todo-list li .star {
+	position: absolute;
+	top: 0;
+	right: 10px;
+	bottom: 0;
+	width: 40px;
+	height: 40px;
+	margin: auto 0;
+	font-size: 24px;
+	color: #949494;
+	transition: color 0.2s ease-out;
+}
+
+.todo-list li .star:after {
+	content: '☆';
+	display: block;
+	height: 100%;
+	line-height: 1.6;
+}
+
+.todo-list li .star:hover,
+.todo-list li .star:focus {
+	color: #4d4d4d;
+}
+
+.todo-list li .star[aria-pressed='true'] {
+	color: #b83f45;
+}
+
+.todo-list li .star[aria-pressed='true']:after {
+	content: '★';
+}
+
 /* The checkboxes are visually hidden, so draw their focus ring on the circle or chevron instead. */
 .todo-list li .toggle:focus-visible + label,
 .toggle-all:focus-visible + label {
@@ -56,6 +95,7 @@
 }
 
 .todo-list li .edit-button:focus-visible,
-.todo-list li .destroy:focus-visible {
+.todo-list li .destroy:focus-visible,
+.todo-list li .star:focus-visible {
 	outline: 2px solid #b83f45;
 }
