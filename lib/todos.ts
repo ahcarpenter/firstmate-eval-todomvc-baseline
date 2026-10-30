@@ -10,8 +10,26 @@ export const FILTERS: Filter[] = ["all", "active", "completed"];
 
 export const STORAGE_KEY = "todos-nextjs";
 
+export const UNDO_DELETE_MS = 5000;
+
+export type DeletedTodo = {
+  todo: Todo;
+  index: number;
+};
+
 export function nextId(todos: Todo[]): number {
-  return todos.length + 1;
+  return todos.reduce((max, todo) => Math.max(max, todo.id), 0) + 1;
+}
+
+export function removeTodo(todos: Todo[], id: number): { todos: Todo[]; deleted: DeletedTodo | null } {
+  const index = todos.findIndex((todo) => todo.id === id);
+  if (index === -1) return { todos, deleted: null };
+  return { todos: todos.filter((todo) => todo.id !== id), deleted: { todo: todos[index], index } };
+}
+
+export function restoreTodo(todos: Todo[], { todo, index }: DeletedTodo): Todo[] {
+  const at = Math.min(index, todos.length);
+  return [...todos.slice(0, at), todo, ...todos.slice(at)];
 }
 
 export function pluralize(count: number, word: string): string {

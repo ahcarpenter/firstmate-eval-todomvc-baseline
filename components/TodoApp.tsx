@@ -3,7 +3,20 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import TodoItem from "@/components/TodoItem";
-import { filterTodos, loadTodos, nextId, pluralize, saveTodos, type Filter, type Todo } from "@/lib/todos";
+import UndoDelete from "@/components/UndoDelete";
+import {
+  filterTodos,
+  loadTodos,
+  nextId,
+  pluralize,
+  removeTodo,
+  restoreTodo,
+  saveTodos,
+  UNDO_DELETE_MS,
+  type DeletedTodo,
+  type Filter,
+  type Todo,
+} from "@/lib/todos";
 
 const ENTER_KEY = "Enter";
 
@@ -12,6 +25,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   const [loaded, setLoaded] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [deleted, setDeleted] = useState<DeletedTodo | null>(null);
 
   useEffect(() => {
     // Read storage after mount so the server render and the first client render match.
@@ -24,11 +38,19 @@ export default function TodoApp({ filter }: { filter: Filter }) {
     if (loaded) saveTodos(todos);
   }, [todos, loaded]);
 
+  useEffect(() => {
+    if (!deleted) return;
+    const timer = setTimeout(() => setDeleted(null), UNDO_DELETE_MS);
+    return () => clearTimeout(timer);
+  }, [deleted]);
+
   function addTodo(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key !== ENTER_KEY) return;
     const title = newTitle.trim();
     if (!title) return;
-    setTodos([...todos, { id: nextId(todos), title, completed: false }]);
+    // Count the todo awaiting undo so restoring it cannot duplicate an id.
+    const id = nextId(deleted ? [...todos, deleted.todo] : todos);
+    setTodos([...todos, { id, title, completed: false }]);
     setNewTitle("");
   }
 
@@ -41,7 +63,15 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   }
 
   function destroy(id: number) {
-    setTodos(todos.filter((todo) => todo.id !== id));
+    const result = removeTodo(todos, id);
+    setTodos(result.todos);
+    setDeleted(result.deleted);
+  }
+
+  function undoDelete() {
+    if (!deleted) return;
+    setTodos(restoreTodo(todos, deleted));
+    setDeleted(null);
   }
 
   function save(id: number, title: string) {
@@ -132,6 +162,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
           </footer>
         )}
       </section>
+      {deleted && <UndoDelete title={deleted.todo.title} onUndo={undoDelete} />}
       <footer className="info">
         <p>Double-click to edit a todo</p>
         <p>
