@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   LEGACY_STORAGE_KEY,
   STORAGE_KEY,
+  deleteList,
   filterTodos,
   listPath,
   nextId,
   pluralize,
   readLists,
+  renameList,
   type Todo,
   type TodoList,
 } from "./todos";
@@ -94,5 +96,34 @@ describe("readLists", () => {
     expect(readLists(storage({ [STORAGE_KEY]: "{", [LEGACY_STORAGE_KEY]: "nope" }))).toEqual([
       { id: 1, name: "Todos", todos: [] },
     ]);
+  });
+});
+
+describe("renameList", () => {
+  const lists: TodoList[] = [
+    { id: 1, name: "Todos", todos },
+    { id: 2, name: "Work", todos: [] },
+  ];
+
+  it("renames only the given list and keeps its todos", () => {
+    expect(renameList(lists, 1, "Home")).toEqual([
+      { id: 1, name: "Home", todos },
+      { id: 2, name: "Work", todos: [] },
+    ]);
+  });
+});
+
+describe("deleteList", () => {
+  const lists: TodoList[] = [
+    { id: 1, name: "Todos", todos },
+    { id: 2, name: "Work", todos: [] },
+  ];
+
+  it("removes the given list", () => {
+    expect(deleteList(lists, 1)).toEqual([{ id: 2, name: "Work", todos: [] }]);
+  });
+
+  it("keeps the last list", () => {
+    expect(deleteList([lists[0]], 1)).toEqual([lists[0]]);
   });
 });

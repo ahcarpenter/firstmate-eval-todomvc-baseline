@@ -72,6 +72,69 @@ test("existing todos become a list called Todos", async ({ page }) => {
   await expect(page.locator(".todo-count")).toHaveText("1 item left");
 });
 
+test("renaming a list keeps the new name across reloads", async ({ page }) => {
+  await page.goto("/");
+  await addList(page, "Work");
+  await expect(page).toHaveURL("/lists/2");
+
+  await lists(page).getByRole("button", { name: "Rename Work" }).click();
+  const field = lists(page).getByRole("textbox", { name: "Rename Work" });
+  await expect(field).toBeFocused();
+  await expect(field).toHaveValue("Work");
+  await field.fill("Office");
+  await field.press("Escape");
+  await expect(lists(page).getByRole("link")).toHaveText(["Todos", "Work"]);
+
+  await lists(page).getByRole("button", { name: "Rename Work" }).click();
+  await lists(page).getByRole("textbox", { name: "Rename Work" }).fill("Office");
+  await lists(page).getByRole("textbox", { name: "Rename Work" }).press("Enter");
+  await expect(lists(page).getByRole("link")).toHaveText(["Todos", "Office"]);
+  await expect(lists(page).getByRole("button", { name: "Rename Office" })).toBeVisible();
+
+  await page.reload();
+  await expect(lists(page).getByRole("link")).toHaveText(["Todos", "Office"]);
+});
+
+test("deleting the open list removes its todos and opens the first list", async ({ page }) => {
+  await page.goto("/");
+  await addTodo(page, "Buy milk");
+  await addList(page, "Work");
+  await addTodo(page, "Write report");
+
+  page.once("dialog", (dialog) => dialog.dismiss());
+  await lists(page).getByRole("button", { name: "Delete Work" }).click();
+  await expect(lists(page).getByRole("link")).toHaveText(["Todos", "Work"]);
+  await expect(page.locator(".todo-list li")).toHaveText(["Write report"]);
+
+  page.once("dialog", (dialog) => dialog.accept());
+  await lists(page).getByRole("button", { name: "Delete Work" }).click();
+  await expect(page).toHaveURL("/lists/1");
+  await expect(lists(page).getByRole("link")).toHaveText(["Todos"]);
+  await expect(page.locator(".todo-list li")).toHaveText(["Buy milk"]);
+
+  await page.reload();
+  await expect(lists(page).getByRole("link")).toHaveText(["Todos"]);
+  const stored = await page.evaluate(() => localStorage.getItem("todos-nextjs-lists"));
+  expect(stored).not.toContain("Write report");
+});
+
+test("deleting another list stays on the open list", async ({ page }) => {
+  await page.goto("/");
+  await addList(page, "Work");
+  await lists(page).getByRole("link", { name: "Todos" }).click();
+  await expect(page).toHaveURL("/lists/1");
+
+  page.once("dialog", (dialog) => dialog.accept());
+  await lists(page).getByRole("button", { name: "Delete Work" }).click();
+  await expect(lists(page).getByRole("link")).toHaveText(["Todos"]);
+  await expect(page).toHaveURL("/lists/1");
+});
+
+test("the last list cannot be deleted", async ({ page }) => {
+  await page.goto("/");
+  await expect(lists(page).getByRole("button", { name: "Delete Todos" })).toBeDisabled();
+});
+
 test("an unknown list says so", async ({ page }) => {
   await page.goto("/lists/99");
   await expect(page.getByText("This list does not exist.")).toBeVisible();

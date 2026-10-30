@@ -39,6 +39,16 @@ export function listPath(listId: number | string, filter: Filter = "all"): strin
   return filter === "all" ? `/lists/${listId}` : `/lists/${listId}/${filter}`;
 }
 
+export function renameList(lists: TodoList[], id: number, name: string): TodoList[] {
+  return lists.map((list) => (list.id === id ? { ...list, name } : list));
+}
+
+// The last list is kept so there is always a list to open.
+export function deleteList(lists: TodoList[], id: number): TodoList[] {
+  if (lists.length <= 1) return lists;
+  return lists.filter((list) => list.id !== id);
+}
+
 function parse<T>(raw: string | null): T | null {
   if (!raw) return null;
   try {

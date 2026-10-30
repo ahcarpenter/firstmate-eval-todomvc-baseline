@@ -10,12 +10,13 @@
 }
 
 .lists li {
-  display: inline;
+  display: inline-block;
+  margin-right: 8px;
 }
 
 .lists li a {
   display: inline-block;
-  margin: 0 4px 4px 0;
+  margin: 0 2px 4px 0;
   padding: 3px 7px;
   border: 1px solid transparent;
   border-radius: 3px;
@@ -42,4 +43,30 @@
 
 .missing-list {
   padding: 16px;
+}
+
+.lists .list-action {
+  margin: 0 4px 4px 0;
+  padding: 2px 5px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font: inherit;
+  font-size: 11px;
+  color: #777;
+  cursor: pointer;
+}
+
+.lists .list-action:hover:not(:disabled) {
+  border-color: #db7676;
+}
+
+.lists .list-action:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.lists .rename-list {
+  margin: 0 4px 4px 0;
+  padding: 3px 6px;
+  font: inherit;
 }

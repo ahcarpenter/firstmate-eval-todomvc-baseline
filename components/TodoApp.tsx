@@ -3,13 +3,16 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import ListLink from "@/components/ListLink";
 import TodoItem from "@/components/TodoItem";
 import {
+  deleteList,
   filterTodos,
   listPath,
   loadLists,
   nextId,
   pluralize,
+  renameList,
   saveLists,
   type Filter,
   type Todo,
@@ -56,6 +59,19 @@ export default function TodoApp({ listId, filter }: { listId: string; filter: Fi
     router.push(listPath(created.id));
   }
 
+  function rename(target: TodoList, name: string) {
+    if (!lists) return;
+    commitLists(renameList(lists, target.id, name));
+  }
+
+  function remove(target: TodoList) {
+    if (!lists || lists.length <= 1) return;
+    if (!window.confirm(`Delete the list "${target.name}" and its todos?`)) return;
+    const next = deleteList(lists, target.id);
+    commitLists(next);
+    if (target === list) router.replace(listPath(next[0].id));
+  }
+
   function addTodo(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key !== ENTER_KEY) return;
     const title = newTitle.trim();
@@ -98,15 +114,14 @@ export default function TodoApp({ listId, filter }: { listId: string; filter: Fi
     <nav className="lists" aria-label="Lists">
       <ul>
         {lists.map((candidate) => (
-          <li key={candidate.id}>
-            <Link
-              href={listPath(candidate.id)}
-              className={candidate === list ? "selected" : undefined}
-              aria-current={candidate === list ? "page" : undefined}
-            >
-              {candidate.name}
-            </Link>
-          </li>
+          <ListLink
+            key={candidate.id}
+            list={candidate}
+            current={candidate === list}
+            canDelete={lists.length > 1}
+            onRename={(name) => rename(candidate, name)}
+            onDelete={() => remove(candidate)}
+          />
         ))}
       </ul>
       <label htmlFor="new-list">New list name</label>
