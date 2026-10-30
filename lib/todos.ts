@@ -23,9 +23,10 @@ function normalizeTitle(title: string): string {
   return title.trim().replace(/\s+/g, " ").toLowerCase();
 }
 
-export function findActiveDuplicate(todos: Todo[], title: string): Todo | undefined {
+// Pass exceptId when renaming so a todo never counts as a duplicate of itself.
+export function findActiveDuplicate(todos: Todo[], title: string, exceptId?: number): Todo | undefined {
   const wanted = normalizeTitle(title);
-  return todos.find((todo) => !todo.completed && normalizeTitle(todo.title) === wanted);
+  return todos.find((todo) => todo.id !== exceptId && !todo.completed && normalizeTitle(todo.title) === wanted);
 }
 
 export function filterTodos(todos: Todo[], filter: Filter): Todo[] {
