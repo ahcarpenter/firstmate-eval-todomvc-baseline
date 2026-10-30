@@ -35,3 +35,32 @@ test("adds a todo again once the earlier one is completed", async ({ page }) => 
   await expect(page.locator(".todo-list li")).toHaveText(["Buy milk", "Buy milk"]);
   await expect(page.getByRole("status")).toHaveText("");
 });
+
+test("does not rename a todo to the title of an active todo", async ({ page }) => {
+  await page.goto("/");
+  const input = page.getByPlaceholder("What needs to be done?");
+  for (const title of ["Buy milk", "Buy bread"]) {
+    await input.fill(title);
+    await input.press("Enter");
+  }
+  await page.locator(".todo-list li label").nth(1).dblclick();
+  await page.locator(".todo-list li .edit").fill(" buy MILK ");
+  await page.locator(".todo-list li .edit").press("Enter");
+  await expect(page.locator(".todo-list li")).toHaveText(["Buy milk", "Buy bread"]);
+  await expect(page.getByRole("status")).toHaveText("“Buy milk” is already on your list.");
+});
+
+test("renames a todo to the title of a completed todo", async ({ page }) => {
+  await page.goto("/");
+  const input = page.getByPlaceholder("What needs to be done?");
+  for (const title of ["Buy milk", "Buy bread"]) {
+    await input.fill(title);
+    await input.press("Enter");
+  }
+  await page.locator(".todo-list li .toggle").first().check();
+  await page.locator(".todo-list li label").nth(1).dblclick();
+  await page.locator(".todo-list li .edit").fill("Buy milk");
+  await page.locator(".todo-list li .edit").press("Enter");
+  await expect(page.locator(".todo-list li")).toHaveText(["Buy milk", "Buy milk"]);
+  await expect(page.getByRole("status")).toHaveText("");
+});

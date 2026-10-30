@@ -29,9 +29,10 @@ function normalizeTitle(title: string): string {
 }
 
 // Titles match ignoring case and surrounding or repeated whitespace.
-export function findActiveDuplicate(todos: Todo[], title: string): Todo | undefined {
+// Pass `ignoreId` when renaming so a todo never counts as a duplicate of itself.
+export function findActiveDuplicate(todos: Todo[], title: string, ignoreId?: number): Todo | undefined {
   const wanted = normalizeTitle(title);
-  return todos.find((todo) => !todo.completed && normalizeTitle(todo.title) === wanted);
+  return todos.find((todo) => todo.id !== ignoreId && !todo.completed && normalizeTitle(todo.title) === wanted);
 }
 
 export function loadTodos(): Todo[] {
