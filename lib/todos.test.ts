@@ -75,12 +75,26 @@ describe("sortByDueDate", () => {
 
 describe("formatDueDate", () => {
   it("shows the short month and day", () => {
-    expect(formatDueDate("2026-11-03")).toBe("Due Nov 3");
+    expect(formatDueDate("2026-11-03", TODAY)).toBe("Due Nov 3");
   });
 
   it("keeps the calendar day at month edges", () => {
-    expect(formatDueDate("2026-01-01")).toBe("Due Jan 1");
-    expect(formatDueDate("2026-12-31")).toBe("Due Dec 31");
+    expect(formatDueDate("2026-01-01", TODAY)).toBe("Due Jan 1");
+    expect(formatDueDate("2026-12-31", TODAY)).toBe("Due Dec 31");
+  });
+
+  it("says today and tomorrow for those days", () => {
+    expect(formatDueDate(TODAY, TODAY)).toBe("Due today");
+    expect(formatDueDate("2026-10-30", TODAY)).toBe("Due tomorrow");
+    expect(formatDueDate("2026-10-31", TODAY)).toBe("Due Oct 31");
+    expect(formatDueDate("2026-10-28", TODAY)).toBe("Due Oct 28");
+  });
+
+  it("finds tomorrow across month and year ends", () => {
+    expect(formatDueDate("2026-11-01", "2026-10-31")).toBe("Due tomorrow");
+    expect(formatDueDate("2027-01-01", "2026-12-31")).toBe("Due tomorrow");
+    expect(formatDueDate("2028-02-29", "2028-02-28")).toBe("Due tomorrow");
+    expect(formatDueDate("2026-03-01", "2026-02-28")).toBe("Due tomorrow");
   });
 });
 

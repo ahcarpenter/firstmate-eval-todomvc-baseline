@@ -5,6 +5,7 @@ import { formatDueDate, type Todo } from "@/lib/todos";
 
 type Props = {
   todo: Todo;
+  today: string;
   overdue: boolean;
   editing: boolean;
   onToggle: () => void;
@@ -14,7 +15,7 @@ type Props = {
   onCancel: () => void;
 };
 
-export default function TodoItem({ todo, overdue, editing, onToggle, onDestroy, onEdit, onSave, onCancel }: Props) {
+export default function TodoItem({ todo, today, overdue, editing, onToggle, onDestroy, onEdit, onSave, onCancel }: Props) {
   const [editText, setEditText] = useState(todo.title);
   const [editDueDate, setEditDueDate] = useState(todo.dueDate ?? "");
 
@@ -47,7 +48,7 @@ export default function TodoItem({ todo, overdue, editing, onToggle, onDestroy, 
         <input className="toggle" type="checkbox" checked={todo.completed} onChange={onToggle} />
         <label onDoubleClick={startEditing}>
           {todo.title}
-          {todo.dueDate && <span className="due-date">{formatDueDate(todo.dueDate)}</span>}
+          {todo.dueDate && <span className="due-date">{formatDueDate(todo.dueDate, today)}</span>}
           {overdue && <span className="overdue">Overdue</span>}
         </label>
         <button className="destroy" onClick={onDestroy} />

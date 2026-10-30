@@ -135,6 +135,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
                 <TodoItem
                   key={todo.id}
                   todo={todo}
+                  today={today}
                   overdue={isOverdue(todo, today)}
                   editing={editingId === todo.id}
                   onToggle={() => toggle(todo.id)}

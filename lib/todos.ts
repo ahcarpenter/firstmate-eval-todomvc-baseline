@@ -24,11 +24,21 @@ export function pluralize(count: number, word: string): string {
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-// Formats a YYYY-MM-DD date as "Due Nov 3". Parses the parts directly so the
-// day never shifts with the viewer's time zone.
-export function formatDueDate(dueDate: string): string {
+// Formats a YYYY-MM-DD date as "Due today", "Due tomorrow", or otherwise
+// "Due Nov 3", relative to today (also YYYY-MM-DD). Parses the parts directly
+// so the day never shifts with the viewer's time zone.
+export function formatDueDate(dueDate: string, today: string): string {
+  if (dueDate === today) return "Due today";
+  if (dueDate === nextDate(today)) return "Due tomorrow";
   const [, month, day] = dueDate.split("-").map(Number);
   return `Due ${MONTHS[month - 1]} ${day}`;
+}
+
+// The calendar day after a YYYY-MM-DD date. Date rolls the day over month and
+// year ends; local noon keeps DST changes from moving it to another day.
+function nextDate(date: string): string {
+  const [year, month, day] = date.split("-").map(Number);
+  return localDate(new Date(year, month - 1, day + 1, 12));
 }
 
 // The viewer's local calendar date as YYYY-MM-DD, comparable with dueDate.

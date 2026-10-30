@@ -10,6 +10,7 @@ test("adds a todo", async ({ page }) => {
 });
 
 test("adds a todo with a due date that survives a reload", async ({ page }) => {
+  await page.clock.setFixedTime(new Date(2026, 9, 29, 12, 0));
   await page.goto("/");
   await page.getByLabel("Due date").fill("2026-11-03");
   const input = page.getByPlaceholder("What needs to be done?");
@@ -24,6 +25,31 @@ test("adds a todo with a due date that survives a reload", async ({ page }) => {
   await page.reload();
   await expect(items.first().locator(".due-date")).toHaveText("Due Nov 3");
   await expect(items.nth(1).locator(".due-date")).toHaveCount(0);
+});
+
+test("says today and tomorrow for todos due on those days", async ({ page }) => {
+  // Late evening on the last day of the month, by the viewer's local clock.
+  await page.clock.setFixedTime(new Date(2026, 9, 31, 23, 30));
+  await page.goto("/");
+  const dueDate = page.getByLabel("Due date");
+  const input = page.getByPlaceholder("What needs to be done?");
+  for (const [title, due] of [
+    ["Pay rent", "2026-10-31"],
+    ["Call mom", "2026-11-01"],
+    ["File taxes", "2026-11-02"],
+    ["Walk dog", "2026-10-30"],
+  ]) {
+    await dueDate.fill(due);
+    await input.fill(title);
+    await input.press("Enter");
+  }
+  const dates = page.locator(".todo-list li .due-date");
+  await expect(dates).toHaveText(["Due today", "Due tomorrow", "Due Nov 2", "Due Oct 30"]);
+
+  // After midnight, tomorrow becomes today.
+  await page.clock.setFixedTime(new Date(2026, 10, 1, 0, 30));
+  await page.reload();
+  await expect(dates).toHaveText(["Due Oct 31", "Due today", "Due tomorrow", "Due Oct 30"]);
 });
 
 test("marks overdue todos, filters them, and counts them in the footer", async ({ page }) => {
