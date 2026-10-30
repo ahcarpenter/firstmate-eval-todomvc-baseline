@@ -3,15 +3,25 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import TodoItem from "@/components/TodoItem";
-import { filterTodos, loadTodos, nextId, pluralize, saveTodos, type Filter, type Todo } from "@/lib/todos";
+import { filterTodos, findActiveDuplicate, loadTodos, nextId, pluralize, saveTodos, type Filter, type Todo } from "@/lib/todos";
 
 const ENTER_KEY = "Enter";
+
+const noticeStyle: React.CSSProperties = {
+  margin: 0,
+  padding: "0 16px 0 60px",
+  color: "#b83f45",
+  fontSize: "14px",
+  lineHeight: "24px",
+  minHeight: 0,
+};
 
 export default function TodoApp({ filter }: { filter: Filter }) {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [duplicateNotice, setDuplicateNotice] = useState("");
 
   useEffect(() => {
     // Read storage after mount so the server render and the first client render match.
@@ -28,8 +38,14 @@ export default function TodoApp({ filter }: { filter: Filter }) {
     if (event.key !== ENTER_KEY) return;
     const title = newTitle.trim();
     if (!title) return;
+    const duplicate = findActiveDuplicate(todos, title);
+    if (duplicate) {
+      setDuplicateNotice(`"${duplicate.title}" is already on your list.`);
+      return;
+    }
     setTodos([...todos, { id: nextId(todos), title, completed: false }]);
     setNewTitle("");
+    setDuplicateNotice("");
   }
 
   function toggle(id: number) {
@@ -72,9 +88,16 @@ export default function TodoApp({ filter }: { filter: Filter }) {
             placeholder="What needs to be done?"
             autoFocus
             value={newTitle}
-            onChange={(event) => setNewTitle(event.target.value)}
+            onChange={(event) => {
+              setNewTitle(event.target.value);
+              setDuplicateNotice("");
+            }}
             onKeyDown={addTodo}
+            aria-describedby="duplicate-notice"
           />
+          <p id="duplicate-notice" className="duplicate-notice" role="status" style={noticeStyle}>
+            {duplicateNotice}
+          </p>
         </header>
         {todos.length > 0 && (
           <section className="main">
