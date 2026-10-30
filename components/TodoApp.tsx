@@ -129,6 +129,9 @@ export default function TodoApp({ filter }: { filter: Filter }) {
                 Clear completed
               </button>
             )}
+            <span className="completed-count">
+              <strong>{completedCount}</strong> completed
+            </span>
           </footer>
         )}
       </section>
