@@ -72,6 +72,24 @@
   background: none;
 }
 
+.main .search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px 12px 60px;
+  border-bottom: 1px solid #ededed;
+  font-size: 14px;
+  color: #777;
+}
+
+.main .search input {
+  flex: 1;
+  font-family: inherit;
+  font-size: 16px;
+  padding: 4px 6px;
+  border: 1px solid #ededed;
+}
+
 .footer {
   height: auto;
 }

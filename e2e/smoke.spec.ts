@@ -166,3 +166,27 @@ test("says today and tomorrow for todos due on those days by the local calendar"
   await expect(dues).toHaveText(["Due today", "Due tomorrow", "Due Nov 1", "Due Oct 29"]);
   await expect(page.locator(".overdue-count")).toHaveText("1 overdue");
 });
+
+test("searches titles within the current filter and keeps counting every active todo", async ({ page }) => {
+  await page.goto("/");
+  const input = page.getByPlaceholder("What needs to be done?");
+  for (const title of ["Buy milk", "Buy MILK chocolate", "Walk the dog", "Call mom"]) {
+    await input.fill(title);
+    await input.press("Enter");
+  }
+  await page.locator(".todo-list li").filter({ hasText: "Buy MILK chocolate" }).locator(".toggle").click();
+  const labels = page.locator(".todo-list li label");
+  const search = page.getByLabel("Search");
+
+  await search.fill("milk");
+  await expect(labels).toHaveText(["Buy milk", "Buy MILK chocolate"]);
+  await expect(page.locator(".todo-count")).toHaveText("3 items left");
+
+  await page.getByRole("link", { name: "Active" }).click();
+  await expect(page).toHaveURL(/\/active$/);
+  await expect(labels).toHaveText(["Buy milk"]);
+
+  await search.fill("");
+  await expect(labels).toHaveText(["Buy milk", "Walk the dog", "Call mom"]);
+  await expect(page.locator(".todo-count")).toHaveText("3 items left");
+});

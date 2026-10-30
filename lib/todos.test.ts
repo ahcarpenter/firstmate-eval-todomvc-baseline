@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { editTodo, filterTodos, formatDue, isOverdue, nextId, pluralize, sortByDue, todayKey, tomorrowKey, type Todo } from "./todos";
+import { editTodo, filterTodos, formatDue, isOverdue, nextId, pluralize, searchTodos, sortByDue, todayKey, tomorrowKey, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -38,6 +38,18 @@ describe("filterTodos", () => {
 
   it("returns only completed todos", () => {
     expect(filterTodos(todos, "completed").map((todo) => todo.id)).toEqual([2]);
+  });
+});
+
+describe("searchTodos", () => {
+  it("keeps todos whose title contains the text, ignoring case", () => {
+    expect(searchTodos(todos, "MILK").map((todo) => todo.id)).toEqual([1]);
+    expect(searchTodos(todos, "the d").map((todo) => todo.id)).toEqual([2]);
+    expect(searchTodos(todos, "bread")).toEqual([]);
+  });
+
+  it("keeps everything for an empty query", () => {
+    expect(searchTodos(todos, "")).toEqual(todos);
   });
 });
 

@@ -14,6 +14,9 @@ export const STORAGE_KEY = "todos-nextjs";
 
 export const SORT_STORAGE_KEY = "todos-nextjs-sort-by-due";
 
+// Session storage, so the search survives switching filters but not a new tab.
+export const SEARCH_STORAGE_KEY = "todos-nextjs-search";
+
 export function nextId(todos: Todo[]): number {
   return todos.length + 1;
 }
@@ -70,6 +73,12 @@ export function filterTodos(todos: Todo[], filter: Filter, today: string = today
   return todos;
 }
 
+// Todos whose title contains `query`, ignoring letter case; an empty query keeps them all.
+export function searchTodos(todos: Todo[], query: string): Todo[] {
+  const needle = query.toLowerCase();
+  return todos.filter((todo) => todo.title.toLowerCase().includes(needle));
+}
+
 // Earliest due date first; undated todos go last. The sort is stable, so ties keep their order.
 export function sortByDue(todos: Todo[]): Todo[] {
   const key = (todo: Todo) => (todo.due && formatDue(todo.due) !== null ? todo.due : null);
@@ -106,4 +115,16 @@ export function loadSortByDue(): boolean {
 
 export function saveSortByDue(sortByDue: boolean): void {
   window.localStorage.setItem(SORT_STORAGE_KEY, String(sortByDue));
+}
+
+export function loadSearch(): string {
+  try {
+    return window.sessionStorage.getItem(SEARCH_STORAGE_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+export function saveSearch(search: string): void {
+  window.sessionStorage.setItem(SEARCH_STORAGE_KEY, search);
 }
