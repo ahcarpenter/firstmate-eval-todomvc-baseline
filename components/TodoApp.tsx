@@ -6,11 +6,14 @@ import TodoItem from "@/components/TodoItem";
 import {
   filterTodos,
   isOverdue,
+  loadSortByDue,
   loadTodos,
   localDay,
   nextId,
   pluralize,
+  saveSortByDue,
   saveTodos,
+  sortByDue as sortTodosByDue,
   type Filter,
   type Todo,
 } from "@/lib/todos";
@@ -23,17 +26,23 @@ export default function TodoApp({ filter }: { filter: Filter }) {
   const [newTitle, setNewTitle] = useState("");
   const [newDue, setNewDue] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [sortByDue, setSortByDue] = useState(false);
 
   useEffect(() => {
     // Read storage after mount so the server render and the first client render match.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setTodos(loadTodos());
+    setSortByDue(loadSortByDue());
     setLoaded(true);
   }, []);
 
   useEffect(() => {
     if (loaded) saveTodos(todos);
   }, [todos, loaded]);
+
+  useEffect(() => {
+    if (loaded) saveSortByDue(sortByDue);
+  }, [sortByDue, loaded]);
 
   function addTodo(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key !== ENTER_KEY) return;
@@ -76,7 +85,8 @@ export default function TodoApp({ filter }: { filter: Filter }) {
 
   // Todos load only after mount, so reading the clock here cannot cause a hydration mismatch.
   const today = localDay(new Date());
-  const shown = filterTodos(todos, filter, today);
+  const filtered = filterTodos(todos, filter, today);
+  const shown = sortByDue ? sortTodosByDue(filtered) : filtered;
   const activeCount = todos.filter((todo) => !todo.completed).length;
   const completedCount = todos.length - activeCount;
   const overdueCount = todos.filter((todo) => isOverdue(todo, today)).length;
@@ -156,6 +166,10 @@ export default function TodoApp({ filter }: { filter: Filter }) {
                 </Link>
               </li>
             </ul>
+            <label className="sort-by-due">
+              <input type="checkbox" checked={sortByDue} onChange={(event) => setSortByDue(event.target.checked)} />
+              Sort by date
+            </label>
             {completedCount > 0 && (
               <button className="clear-completed" onClick={clearCompleted}>
                 Clear completed

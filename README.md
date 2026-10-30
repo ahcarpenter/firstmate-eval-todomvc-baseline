@@ -27,4 +27,4 @@ npm run test:e2e  # end-to-end tests (Playwright); builds and starts the app on 
 - `components/TodoItem.tsx` renders one todo and its edit field.
 - `lib/todos.ts` has the `Todo` type, filtering, and localStorage helpers.
 
-Todos persist in `localStorage` under the `todos-nextjs` key.
+Todos persist in `localStorage` under the `todos-nextjs` key, and the footer's "Sort by date" choice under `todos-nextjs-sort-by-due`.

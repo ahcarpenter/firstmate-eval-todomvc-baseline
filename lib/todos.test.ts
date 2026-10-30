@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, formatDue, isOverdue, localDay, nextId, pluralize, type Todo } from "./todos";
+import { filterTodos, formatDue, isOverdue, localDay, nextId, pluralize, sortByDue, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -49,6 +49,31 @@ describe("filterTodos", () => {
 
   it("returns only overdue todos", () => {
     expect(filterTodos(dated, "overdue", today).map((todo) => todo.id)).toEqual([3]);
+  });
+});
+
+describe("sortByDue", () => {
+  const todo = (id: number, due?: string): Todo => ({ id, title: `Todo ${id}`, completed: false, due });
+
+  it("orders by due date, earliest first", () => {
+    const sorted = sortByDue([todo(1, "2026-11-03"), todo(2, "2025-12-31"), todo(3, "2026-10-29")]);
+    expect(sorted.map((t) => t.id)).toEqual([2, 3, 1]);
+  });
+
+  it("puts todos without a valid due date last, keeping their order", () => {
+    const sorted = sortByDue([todo(1), todo(2, "2026-11-03"), todo(3, "2026-02-31"), todo(4, ""), todo(5, "2026-10-29")]);
+    expect(sorted.map((t) => t.id)).toEqual([5, 2, 1, 3, 4]);
+  });
+
+  it("keeps the usual order for todos due the same day", () => {
+    const sorted = sortByDue([todo(1, "2026-11-03"), todo(2, "2026-10-29"), todo(3, "2026-11-03"), todo(4, "2026-10-29")]);
+    expect(sorted.map((t) => t.id)).toEqual([2, 4, 1, 3]);
+  });
+
+  it("does not change the given list", () => {
+    const list = [todo(1, "2026-11-03"), todo(2, "2026-10-29")];
+    sortByDue(list);
+    expect(list.map((t) => t.id)).toEqual([1, 2]);
   });
 });
 

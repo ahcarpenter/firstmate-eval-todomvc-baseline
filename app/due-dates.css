@@ -74,3 +74,13 @@
 .footer .clear-completed {
   float: none;
 }
+
+.footer .sort-by-due {
+  /* Stay positioned above the footer's ::before shadow layer so the checkbox remains clickable. */
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 8px;
+  white-space: nowrap;
+}

@@ -12,6 +12,8 @@ export const FILTERS: Filter[] = ["all", "active", "completed", "overdue"];
 
 export const STORAGE_KEY = "todos-nextjs";
 
+export const SORT_BY_DUE_KEY = "todos-nextjs-sort-by-due";
+
 export function nextId(todos: Todo[]): number {
   return todos.length + 1;
 }
@@ -39,6 +41,19 @@ function parseDue(due: string | undefined): Date | null {
   const date = new Date(Date.UTC(year, month - 1, day));
   if (date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return null;
   return date;
+}
+
+/** Orders todos by due date, earliest first; todos without a valid due date go last, and ties keep their order. */
+export function sortByDue(todos: Todo[]): Todo[] {
+  const dueOf = (todo: Todo) => (parseDue(todo.due) ? todo.due! : null);
+  // `sort` is stable, so todos with the same due date keep their usual order.
+  return [...todos].sort((a, b) => {
+    const [dueA, dueB] = [dueOf(a), dueOf(b)];
+    if (dueA === dueB) return 0;
+    if (dueA === null) return 1;
+    if (dueB === null) return -1;
+    return dueA < dueB ? -1 : 1;
+  });
 }
 
 /** Formats a `YYYY-MM-DD` due date as "Due Nov 3", or returns null when it is missing or malformed. */
@@ -72,4 +87,16 @@ export function loadTodos(): Todo[] {
 
 export function saveTodos(todos: Todo[]): void {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+}
+
+export function loadSortByDue(): boolean {
+  try {
+    return window.localStorage.getItem(SORT_BY_DUE_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
+export function saveSortByDue(sortByDue: boolean): void {
+  window.localStorage.setItem(SORT_BY_DUE_KEY, String(sortByDue));
 }

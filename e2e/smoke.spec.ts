@@ -102,3 +102,50 @@ test("edits a todo's due date, and Escape cancels the edit", async ({ page }) =>
   await expect(item.locator("label")).toHaveText("Pay the rent");
   await expect(item.locator(".due")).toHaveCount(0);
 });
+
+test("sorts by due date within every filter, and keeps the choice across reloads", async ({ page }) => {
+  await page.clock.setFixedTime(new Date(2026, 9, 29, 12));
+  await page.goto("/");
+  const input = page.getByPlaceholder("What needs to be done?");
+  const due = page.getByLabel("Due date");
+  for (const [title, date] of [
+    ["Buy milk", ""],
+    ["Pay rent", "2026-11-03"],
+    ["File taxes", "2026-10-01"],
+    ["Call mom", "2026-11-03"],
+    ["Walk the dog", ""],
+    ["Book flights", "2026-10-30"],
+  ]) {
+    await input.fill(title);
+    if (date) await due.fill(date);
+    await input.press("Enter");
+  }
+  const titles = page.locator(".todo-list li label");
+  const sort = page.getByLabel("Sort by date");
+  const usual = ["Buy milk", "Pay rent", "File taxes", "Call mom", "Walk the dog", "Book flights"];
+  const sorted = ["File taxes", "Book flights", "Pay rent", "Call mom", "Buy milk", "Walk the dog"];
+  const titlesOf = async () => (await titles.allTextContents()).map((text) => text.replace(/Due.*$/, ""));
+
+  await expect(sort).not.toBeChecked();
+  expect(await titlesOf()).toEqual(usual);
+
+  await sort.check();
+  await expect.poll(titlesOf).toEqual(sorted);
+  await page.reload();
+  await expect(sort).toBeChecked();
+  await expect.poll(titlesOf).toEqual(sorted);
+
+  // Sorting applies within each filter.
+  await page.locator(".todo-list li", { hasText: "Pay rent" }).locator(".toggle").click();
+  await page.locator(".todo-list li", { hasText: "Buy milk" }).locator(".toggle").click();
+  await page.getByRole("link", { name: "Active" }).click();
+  await expect.poll(titlesOf).toEqual(["File taxes", "Book flights", "Call mom", "Walk the dog"]);
+  await page.getByRole("link", { name: "Completed" }).click();
+  await expect.poll(titlesOf).toEqual(["Pay rent", "Buy milk"]);
+
+  await sort.uncheck();
+  await expect.poll(titlesOf).toEqual(["Buy milk", "Pay rent"]);
+  await page.reload();
+  await expect(sort).not.toBeChecked();
+  await expect.poll(titlesOf).toEqual(["Buy milk", "Pay rent"]);
+});
