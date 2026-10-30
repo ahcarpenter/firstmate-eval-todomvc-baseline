@@ -4,6 +4,7 @@ export type TodoAction =
   | { type: "load"; todos: Todo[] }
   | { type: "add"; title: string }
   | { type: "toggle"; id: number }
+  | { type: "togglePin"; id: number }
   | { type: "toggleAll"; completed: boolean }
   | { type: "destroy"; id: number }
   | { type: "save"; id: number; title: string }
@@ -20,6 +21,8 @@ export function todoReducer(todos: Todo[], action: TodoAction): Todo[] {
     }
     case "toggle":
       return todos.map((todo) => (todo.id === action.id ? { ...todo, completed: !todo.completed } : todo));
+    case "togglePin":
+      return todos.map((todo) => (todo.id === action.id ? { ...todo, pinned: !todo.pinned } : todo));
     case "toggleAll":
       return todos.map((todo) => ({ ...todo, completed: action.completed }));
     case "destroy":

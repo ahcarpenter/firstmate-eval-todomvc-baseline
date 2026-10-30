@@ -7,13 +7,14 @@ type Props = {
   todo: Todo;
   editing: boolean;
   onToggle: () => void;
+  onTogglePin: () => void;
   onDestroy: () => void;
   onEdit: () => void;
   onSave: (title: string) => void;
   onCancel: () => void;
 };
 
-export default function TodoItem({ todo, editing, onToggle, onDestroy, onEdit, onSave, onCancel }: Props) {
+export default function TodoItem({ todo, editing, onToggle, onTogglePin, onDestroy, onEdit, onSave, onCancel }: Props) {
   const [editText, setEditText] = useState(todo.title);
 
   function startEditing() {
@@ -30,13 +31,16 @@ export default function TodoItem({ todo, editing, onToggle, onDestroy, onEdit, o
     }
   }
 
-  const classes = [todo.completed ? "completed" : "", editing ? "editing" : ""].filter(Boolean).join(" ");
+  const classes = [todo.completed ? "completed" : "", todo.pinned ? "pinned" : "", editing ? "editing" : ""].filter(Boolean).join(" ");
 
   return (
     <li className={classes || undefined}>
       <div className="view">
         <input className="toggle" type="checkbox" checked={todo.completed} onChange={onToggle} />
         <label onDoubleClick={startEditing}>{todo.title}</label>
+        <button className="pin" onClick={onTogglePin}>
+          {todo.pinned ? "Unpin" : "Pin"}
+        </button>
         <button className="destroy" onClick={onDestroy} />
       </div>
       {editing && (

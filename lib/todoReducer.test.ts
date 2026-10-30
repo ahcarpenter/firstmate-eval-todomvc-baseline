@@ -27,6 +27,12 @@ describe("todoReducer", () => {
     expect(todoReducer(todos, { type: "toggle", id: 1 }).map((todo) => todo.completed)).toEqual([true, true]);
   });
 
+  it("pins and unpins one todo", () => {
+    const pinned = todoReducer(todos, { type: "togglePin", id: 2 });
+    expect(pinned.map((todo) => Boolean(todo.pinned))).toEqual([false, true]);
+    expect(todoReducer(pinned, { type: "togglePin", id: 2 }).some((todo) => todo.pinned)).toBe(false);
+  });
+
   it("marks every todo complete or active", () => {
     expect(todoReducer(todos, { type: "toggleAll", completed: true }).every((todo) => todo.completed)).toBe(true);
     expect(todoReducer(todos, { type: "toggleAll", completed: false }).some((todo) => todo.completed)).toBe(false);
