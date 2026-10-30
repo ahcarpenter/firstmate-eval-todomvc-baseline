@@ -1,0 +1,15 @@
+/* The completed count sits on its own row so long counts never run into the filters. */
+.footer {
+  height: auto;
+}
+
+.completed-count {
+  display: block;
+  clear: both;
+  padding-top: 6px;
+  text-align: left;
+}
+
+.completed-count strong {
+  font-weight: 300;
+}
