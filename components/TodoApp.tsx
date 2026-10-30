@@ -62,10 +62,14 @@ export default function TodoApp({ filter }: { filter: Filter }) {
 
   function save(id: number, title: string) {
     const trimmed = title.trim();
+    const duplicate = trimmed ? findActiveDuplicate(todos, trimmed, id) : undefined;
     if (!trimmed) {
       destroy(id);
+    } else if (duplicate) {
+      setDuplicateNotice(`"${duplicate.title}" is already on your list.`);
     } else {
       setTodos(todos.map((todo) => (todo.id === id ? { ...todo, title: trimmed } : todo)));
+      setDuplicateNotice("");
     }
     setEditingId(null);
   }
