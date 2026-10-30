@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, nextId, pluralize, type Todo } from "./todos";
+import { filterTodos, formatDue, nextId, pluralize, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: 1, title: "Buy milk", completed: false },
@@ -38,5 +38,18 @@ describe("filterTodos", () => {
 
   it("returns only completed todos", () => {
     expect(filterTodos(todos, "completed").map((todo) => todo.id)).toEqual([2]);
+  });
+});
+
+describe("formatDue", () => {
+  it("shows the month and day", () => {
+    expect(formatDue("2026-11-03")).toBe("Due Nov 3");
+    expect(formatDue("2027-01-31")).toBe("Due Jan 31");
+  });
+
+  it("ignores values that are not dates", () => {
+    expect(formatDue("")).toBeNull();
+    expect(formatDue("2026-13-01")).toBeNull();
+    expect(formatDue("Nov 3")).toBeNull();
   });
 });

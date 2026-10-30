@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Todo } from "@/lib/todos";
+import { formatDue, type Todo } from "@/lib/todos";
 
 type Props = {
   todo: Todo;
@@ -30,6 +30,7 @@ export default function TodoItem({ todo, editing, onToggle, onDestroy, onEdit, o
     }
   }
 
+  const due = todo.due ? formatDue(todo.due) : null;
   const classes = [todo.completed ? "completed" : "", editing ? "editing" : ""].filter(Boolean).join(" ");
 
   return (
@@ -37,6 +38,7 @@ export default function TodoItem({ todo, editing, onToggle, onDestroy, onEdit, o
       <div className="view">
         <input className="toggle" type="checkbox" checked={todo.completed} onChange={onToggle} />
         <label onDoubleClick={startEditing}>{todo.title}</label>
+        {due && <span className="todo-due">{due}</span>}
         <button className="destroy" onClick={onDestroy} />
       </div>
       {editing && (
