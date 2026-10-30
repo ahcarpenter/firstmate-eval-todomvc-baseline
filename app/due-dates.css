@@ -8,7 +8,8 @@
   min-width: 0;
 }
 
-.new-due {
+.new-due,
+.edit-due {
   display: flex;
   flex-direction: column;
   padding: 0 16px;
@@ -16,10 +17,24 @@
   color: #777;
 }
 
-.new-due input {
+.new-due input,
+.edit-due input {
   font: inherit;
   font-size: 14px;
   color: #484848;
+}
+
+.todo-list li.editing .edit-row {
+  display: flex;
+  align-items: center;
+  margin-left: 43px;
+}
+
+.todo-list li.editing .edit-row .edit {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  margin: 0;
 }
 
 .todo-list li .due {

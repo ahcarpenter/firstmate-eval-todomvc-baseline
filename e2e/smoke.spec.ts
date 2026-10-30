@@ -63,3 +63,42 @@ test("marks overdue todos, counts them, and filters them at /overdue", async ({ 
   await expect(items).toHaveCount(0);
   await expect(page.locator(".todo-count .overdue-count")).toHaveCount(0);
 });
+
+test("edits a todo's due date, and Escape cancels the edit", async ({ page }) => {
+  await page.clock.setFixedTime(new Date(2026, 9, 29, 12));
+  await page.goto("/");
+  const input = page.getByPlaceholder("What needs to be done?");
+  await input.fill("Pay rent");
+  await page.getByLabel("Due date").fill("2026-11-03");
+  await input.press("Enter");
+  const item = page.locator(".todo-list li").nth(0);
+  const changeDate = page.getByLabel("Change date");
+
+  // Enter in the date field saves both fields; an earlier date makes the todo overdue.
+  await item.locator("label").dblclick();
+  await expect(changeDate).toHaveValue("2026-11-03");
+  await item.locator(".edit").fill("Pay the rent");
+  await changeDate.fill("2026-10-20");
+  await changeDate.press("Enter");
+  await expect(item.locator("label")).toHaveText("Pay the rentDue Oct 20Overdue");
+  await expect(page.locator(".todo-count .overdue-count")).toHaveText("1 overdue");
+
+  // Escape discards changes to both fields.
+  await item.locator("label").dblclick();
+  await item.locator(".edit").fill("Ignored");
+  await changeDate.fill("2026-12-01");
+  await item.locator(".edit").press("Escape");
+  await expect(item.locator("label")).toHaveText("Pay the rentDue Oct 20Overdue");
+
+  // Clearing the date removes it, and Enter in the title field saves.
+  await item.locator("label").dblclick();
+  await expect(changeDate).toHaveValue("2026-10-20");
+  await changeDate.fill("");
+  await item.locator(".edit").press("Enter");
+  await expect(item.locator("label")).toHaveText("Pay the rent");
+  await expect(page.locator(".todo-count .overdue-count")).toHaveCount(0);
+
+  await page.reload();
+  await expect(item.locator("label")).toHaveText("Pay the rent");
+  await expect(item.locator(".due")).toHaveCount(0);
+});

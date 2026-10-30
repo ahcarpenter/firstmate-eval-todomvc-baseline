@@ -58,12 +58,14 @@ export default function TodoApp({ filter }: { filter: Filter }) {
     setTodos(todos.filter((todo) => todo.id !== id));
   }
 
-  function save(id: number, title: string) {
+  /** Saves an edited todo; an empty `due` removes its due date. */
+  function save(id: number, title: string, due: string) {
     const trimmed = title.trim();
     if (!trimmed) {
       destroy(id);
     } else {
-      setTodos(todos.map((todo) => (todo.id === id ? { ...todo, title: trimmed } : todo)));
+      // An undefined `due` is dropped when the todos are saved as JSON.
+      setTodos(todos.map((todo) => (todo.id === id ? { ...todo, title: trimmed, due: due || undefined } : todo)));
     }
     setEditingId(null);
   }
@@ -119,7 +121,7 @@ export default function TodoApp({ filter }: { filter: Filter }) {
                   onToggle={() => toggle(todo.id)}
                   onDestroy={() => destroy(todo.id)}
                   onEdit={() => setEditingId(todo.id)}
-                  onSave={(title) => save(todo.id, title)}
+                  onSave={(title, due) => save(todo.id, title, due)}
                   onCancel={() => setEditingId(null)}
                 />
               ))}
